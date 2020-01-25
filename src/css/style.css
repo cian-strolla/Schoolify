@@ -42,3 +42,15 @@ body {
   border-top-left-radius: 0;
   border-top-right-radius: 0;
 }
+.landing{
+  background-color: #773678;
+  border-color: #773678;
+}
+.landing:hover {
+  background-color: #581D59;
+  border-color: #581D59;
+}
+.landing:active{
+  background-color: #773678;
+  border-color: #773678;
+}
