@@ -17,8 +17,12 @@
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <!-- Overriding CSS -->
     <link rel="stylesheet" href="./css/style.css">
     <link rel="icon" href="./assets/favicon.ico" type="image/x-icon">
+
+    <!-- FontAwesome Icons -->
+    <script src="https://kit.fontawesome.com/44c51e0d9c.js" crossorigin="anonymous"></script>
 
     <title>Schoolify</title>
   </head>
@@ -27,46 +31,53 @@
     <!--<div class="current-student-container container"></div>-->
 
     <div class="view-options container-fluid">
-      <!--
-<ul class="nav flex-column">
-          <li class="nav-item">
-            <a class="nav-link" href="#">Student
-              <span data-feather="home"></span>
-            </a>
-          </li>-->
+      <div class="row">
+        <nav class="sidebar col-md-2 d-none d-md-block">
 
-      <div class="row">
-        <div class="col-md-2">
-          <!-- Search form -->
-<input class="form-control" type="text" placeholder="Search" aria-label="Search">
+
+          <ul class="nav flex-column">
+            <li>
+              <!-- Search form -->
+              <input class="form-control" type="text" placeholder="Search" aria-label="Search">
+            </li>
+            <li>
+              <!--<div class="row col-md-2" id="top-row">Student</div>               -->
+              <strong>Student: </strong>John Doe
+            </li>
+
+            <li>
+              <i class="fas fa-user-graduate"></i>
+              <a class="#nav-link" href="#personal-info">Personal Information</a>
+            </li>
+            <li>
+              <i class="fas fa-copy"></i>
+              <a class="#nav-link" href="#term-reports">Term Reports</a>
+            </li>
+            <li>
+              <i class="fas fa-clock"></i>
+              <a class="#nav-link" href="#attendance">Attendance</a>
+            </li>
+            <li>
+              <i class="fas fa-edit"></i>
+              <a class="#nav-link" href="#homework">Homework</a>
+            </li>
+          </ul>
+          </nav>
         </div>
       </div>
-      <div class="row">
-        <div class="col-md-2 student-title">
-          <div class="row col-md-2" id="top-row">Student</div>
-          <div class="text-nowrap row col-md-2" id="bottom-row">John Doe</div>
-        </div>
+
+
+
+    <!--Below are the hidden content sections for the student-->
+    <div class="hidden-content">
+      <div id="personal-info">
+        <p>Test1</p>
       </div>
-      <div class="row">
-        <!--d-none d-md-block bg-light sidebar-->
-        <div class="col-md-2">
-          Personal Information
-        </div>
+      <div id="term-reports">
+        <p>Test2</p>
       </div>
-      <div class="row">
-        <div class="col-md-2">
-          Term Reports
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-md-2">
-          Attendance
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-md-2">
-          Homework
-        </div>
+      <div id="attendance">
+        <p>Test3</p>
       </div>
     </div>
 
