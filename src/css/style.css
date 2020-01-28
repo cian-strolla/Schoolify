@@ -58,12 +58,25 @@ body {
   margin-left: 10px;
   margin-right: auto;
 }
-.view-options .row>[class^=col-] {
-    padding-top: .75rem;
-    padding-bottom: .75rem;
+.sidebar{
+  margin-left: 0;
+  padding-left: 0;
+}
+.nav li {
+    padding: .5rem;
     color: white;
     background-color: #581D59;
     border: 1px solid rgba(86,61,124,.2);
+}
+.nav a{
+  color: white;
+}
+.hidden-content{
+  display: none;
+}
+.hidden-content div:target{
+  display: inline;
+  background-color: blue;
 }
 .student-title{
   margin-bottom: 10px;
