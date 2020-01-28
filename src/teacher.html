@@ -1,3 +1,13 @@
+<!--
+@Author: Ray Fitzgerald <rayfitzgerald>
+@Date:   2020-01-28T12:33:16+00:00
+@Project: Calculator
+@Last modified by:   rayfitzgerald
+@Last modified time: 2020-01-28T12:33:16+00:00
+-->
+
+
+
 <!doctype html>
 <html lang="en">
   <head>
@@ -16,30 +26,45 @@
 
     <!--<div class="current-student-container container"></div>-->
 
-    <div class="view-options container">
+    <div class="view-options container-fluid">
+      <!--
+<ul class="nav flex-column">
+          <li class="nav-item">
+            <a class="nav-link" href="#">Student
+              <span data-feather="home"></span>
+            </a>
+          </li>-->
+
       <div class="row">
-        <div class="col-3 student-title">
-          <div class="row col-3" id="top-row">Student</div>
-          <div class="text-nowrap row col-3" id="bottom-row">John Doe</div>
+        <div class="col-md-2">
+          <!-- Search form -->
+<input class="form-control" type="text" placeholder="Search" aria-label="Search">
         </div>
       </div>
       <div class="row">
-        <div class="col-3">
+        <div class="col-md-2 student-title">
+          <div class="row col-md-2" id="top-row">Student</div>
+          <div class="text-nowrap row col-md-2" id="bottom-row">John Doe</div>
+        </div>
+      </div>
+      <div class="row">
+        <!--d-none d-md-block bg-light sidebar-->
+        <div class="col-md-2">
           Personal Information
         </div>
       </div>
       <div class="row">
-        <div class="col-3">
+        <div class="col-md-2">
           Term Reports
         </div>
       </div>
       <div class="row">
-        <div class="col-3">
+        <div class="col-md-2">
           Attendance
         </div>
       </div>
       <div class="row">
-        <div class="col-3">
+        <div class="col-md-2">
           Homework
         </div>
       </div>
