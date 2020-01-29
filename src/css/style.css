@@ -8,9 +8,14 @@ body {
   display: flex;
   -ms-flex-align: center;
   align-items: center;
-  padding-top: 40px;
-  padding-bottom: 40px;
   background-color: #ffffff;
+}
+
+.container-fluid {
+  height: 100%;
+}
+.row {
+  height: 100%;
 }
 
 .form-signin {
@@ -61,6 +66,7 @@ body {
 .sidebar{
   margin-left: 0;
   padding-left: 0;
+  background-color: #581D59;
 }
 .nav li {
     padding: .5rem;
