@@ -102,7 +102,7 @@ if http_cookie_header:
 
         sha256_password = sha256(password.encode()).hexdigest()
         if email != '':
-            connection = db.connect('localhost', 'root', '', 'social_network')
+            connection = db.connect('localhost:8080', 'root', 'root', 'schoolify')
             cursor = connection.cursor(db.cursors.DictCursor)
             search_result = cursor.execute("""SELECT * FROM users WHERE email = %s AND passwrd = %s""" , (email, sha256_password))
 
@@ -261,7 +261,7 @@ else:
     sha256_password = sha256(password.encode()).hexdigest()
     if email != '':
 
-        connection = db.connect('localhost', 'root', '', 'social_network')
+        connection = db.connect('localhost:8080', 'root', 'root', 'schoolify')
         cursor = connection.cursor(db.cursors.DictCursor)
         cursor.execute("""SELECT * FROM users WHERE email = %s AND passwrd = %s""" , (email, sha256_password))
 
