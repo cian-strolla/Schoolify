@@ -3,27 +3,34 @@
 from cgitb import enable
 enable()
 
+from cgi import FieldStorage
 import pymysql as db
+from html import escape
 
 print('Content-Type: text/html')
 print()
 
 result = ''
-try:
-    connection = db.connect('cs1.ucc.ie', 'rjf1', 'ahf1Aeho', '2021_rjf1')
-    cursor = connection.cursor(db.cursors.DictCursor)
+student_firstname = ''
+student_lastname = ''
+form_data = FieldStorage()
+student_id = ''
+if len(form_data) != 0:
+    try:
+        student_id = escape(form_data.getfirst('student_id'))
+        connection = db.connect('cs1.ucc.ie', 'rjf1', 'ahf1Aeho', '2021_rjf1')
+        cursor = connection.cursor(db.cursors.DictCursor)
 
-    cursor.execute("""SELECT *
-                      FROM students""")
-    result = list()
-    for row in cursor.fetchall():
-        result.append(row['first_name'])
-        result.append(row['last_name'])
-    #result += '</table>'
-    cursor.close()
-    connection.close()
-except db.Error:
-    result = '<p>Sorry! We are experiencing problems at the moment. Please call back later.</p>'
+        cursor.execute("""SELECT * FROM students
+                        WHERE student_id = '%s'""" % (student_id))
+        for row in cursor.fetchall():
+            student_firstname = row['first_name']
+            student_lastname = row['last_name']
+        #result += '</table>'
+        cursor.close()
+        connection.close()
+    except db.Error:
+        result = '<p>Sorry! We are experiencing problems at the moment. Please call back later.</p>'
 
 print("""
     <!DOCTYPE html>
@@ -60,11 +67,14 @@ print("""
                 </li>
                 <li>
                   <!-- Search form -->
-                  <input class="form-control" type="text" placeholder="Search" aria-label="Search">
+                  <form action="teacher.py" method="get">
+                      <input class="form-control" type="text" value="%s" aria-label="Search" id="student_id" />
+                      <input type="submit" value="Search" />
+                  </form>
                 </li>
                 <li>
                   <!--<div class="row col-md-2" id="top-row">Student</div>               -->
-                  <strong>Student: </strong>%s 
+                  <strong>Student: </strong>%s %s
                 </li>
 
                 <li>
@@ -112,5 +122,5 @@ print("""
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
       </body>
     </html>
-    """ % (result[0]))
+    """ % (student_id, student_firstname, student_lastname))
 
