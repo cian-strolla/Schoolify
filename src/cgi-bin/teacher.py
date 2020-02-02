@@ -29,6 +29,7 @@ if len(form_data) != 0:
             #result+=row
             student_firstname = row['first_name']
             student_lastname = row['last_name']
+            student_phone_number = row['phone_number']
         #result += '</table>'
         cursor.close()
         cursor = connection.cursor(db.cursors.DictCursor)
@@ -117,6 +118,7 @@ print("""
 
                     <strong>Address: </strong> %s
                     <strong>Eircode: </strong> %s
+                    <strong>Phone Number: </strong> %s
                 </div>
                 <div id="term-reports">
                     <p>Test2</p>
@@ -133,5 +135,5 @@ print("""
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
       </body>
     </html>
-    """ % (student_id, student_firstname, student_lastname, address, eircode))
+    """ % (student_id, student_firstname, student_lastname, address, eircode, student_phone_number))
 
