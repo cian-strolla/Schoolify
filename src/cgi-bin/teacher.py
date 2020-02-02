@@ -15,6 +15,8 @@ student_firstname = ''
 student_lastname = ''
 form_data = FieldStorage()
 student_id = ''
+address = ''
+eircode = ''
 if len(form_data) != 0:
     try:
         student_id = escape(form_data.getfirst('student_id'))
@@ -25,9 +27,18 @@ if len(form_data) != 0:
                         WHERE student_id = '%s'""" % (student_id))
         for row in cursor.fetchall():
             #result+=row
-            student_firstname = """%s""" % row['first_name']
-            student_lastname = """%s""" %row['last_name']
+            student_firstname = row['first_name']
+            student_lastname = row['last_name']
         #result += '</table>'
+        cursor.close()
+        cursor = connection.cursor(db.cursors.DictCursor)
+
+        cursor.execute("""SELECT * FROM addresses
+                        WHERE student_id = '%s'""" % (student_id))
+        for row in cursor.fetchall():
+            address = row['address']
+            eircode = row['eircode']
+
         cursor.close()
         connection.close()
     except db.Error:
@@ -100,29 +111,27 @@ print("""
                 </li>
               </ul>
               </nav>
+              <!--Below are the hidden content sections for the student-->
+              <div class="hidden-content">
+                <div class="col-md-8" id="personal-info">
+
+                    <strong>Address: </strong> %s
+                    <strong>Eircode: </strong> %s
+                </div>
+                <div id="term-reports">
+                    <p>Test2</p>
+                </div>
+                <div id="attendance">
+                    <p>Test3</p>
+                </div>
+              </div>
             </div>
           </div>
-          %s
-
-
-
-        <!--Below are the hidden content sections for the student-->
-        <div class="hidden-content">
-          <div id="personal-info">
-            <p>Test1</p>
-          </div>
-          <div id="term-reports">
-            <p>Test2</p>
-          </div>
-          <div id="attendance">
-            <p>Test3</p>
-          </div>
-        </div>
 
         <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
       </body>
     </html>
-    """ % (student_id, student_firstname, student_lastname, result))
+    """ % (student_id, student_firstname, student_lastname, address, eircode))
 

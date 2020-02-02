@@ -77,12 +77,11 @@ body {
 .nav a{
   color: white;
 }
-.hidden-content{
+.hidden-content div{
   display: none;
 }
 .hidden-content div:target{
-  display: inline;
-  background-color: blue;
+  display: block;
 }
 .student-title{
   margin-bottom: 10px;
