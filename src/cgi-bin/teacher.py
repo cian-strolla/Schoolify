@@ -24,8 +24,9 @@ if len(form_data) != 0:
         cursor.execute("""SELECT * FROM students
                         WHERE student_id = '%s'""" % (student_id))
         for row in cursor.fetchall():
-            student_firstname = row['first_name']
-            student_lastname = row['last_name']
+            #result+=row
+            student_firstname = """%s""" % row['first_name']
+            student_lastname = """%s""" %row['last_name']
         #result += '</table>'
         cursor.close()
         connection.close()
@@ -68,7 +69,7 @@ print("""
                 <li>
                   <!-- Search form -->
                   <form action="teacher.py" method="get">
-                      <input class="form-control" type="text" value="%s" aria-label="Search" id="student_id" />
+                      <input class="form-control" type="text" name="student_id" value="%s" placeholder="Student ID" aria-label="Search" id="student_id" />
                       <input type="submit" value="Search" />
                   </form>
                 </li>
@@ -101,6 +102,7 @@ print("""
               </nav>
             </div>
           </div>
+          %s
 
 
 
@@ -122,5 +124,5 @@ print("""
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
       </body>
     </html>
-    """ % (student_id, student_firstname, student_lastname))
+    """ % (student_id, student_firstname, student_lastname, result))
 
