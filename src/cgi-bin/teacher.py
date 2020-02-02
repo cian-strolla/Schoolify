@@ -62,7 +62,7 @@ print("""
 
               <ul class="nav flex-column">
                 <li>
-                  <img src="../assets/just_logo.png" width="60px" height="60px">
+                  <img src="../assets/just_logo_whiteBG.png" width="60px" height="60px">
                   <a class="#nav-link" href="#schoolify">Schoolify</a>
                 </li>
                 <li>
