@@ -1,4 +1,4 @@
-#!C:/Users/cians/AppData/Local/Programs/Python/Python38/python.exe
+#!/usr/local/bin/python3
 
 from cgitb import enable
 enable()
@@ -10,13 +10,15 @@ from time import time
 from shelve import open
 from http.cookies import SimpleCookie
 from os import environ
+from html import escape
 
-homepage = 'homepage.py'
+homepage = 'teacher.py'
 result = 'error'
 display = ''
 
 cookie = SimpleCookie()
 http_cookie_header = environ.get('HTTP_COOKIE')
+
 
 #if cookie present
 if http_cookie_header:
@@ -27,82 +29,40 @@ if http_cookie_header:
         session_store = open('sess_' + sid, writeback=False)
         #if authenticated cookie redirect to homepage
         if session_store.get('authenticated'):
-            print('Location: homepage.py')
+            print('Location: teacher.py')
         #else unauthenticated cookie, display login/signup
         else:
-            result = """<body>
-                <header>
-                    <h1>Homepage</h1>
-                    <h1>Login or Sign Up Below</h1>
-                </header>
-                <main>
-                    <div id ="logindiv">
-                        <button id="loginbutton">Login</button>
-                        <p id = o_p_o style="color:red">
-                            Incorrect details entered. Please check credentials and try again:
-                        </p>
-                        <form action="login.py" method="post" id="login">
-                            <label for="username">Enter Username: </label>
-                            <input type="text" name="username" id="username" />
-                            <label for="password">Enter Password: </label>
-                            <input type="password" name="password" id="password" />
-                            <input type="submit" value="Login" id = "submitbutton"/>
-                        </form>
-                        <div id = "closelog">
-                            <button id="closelogin">Close Login</button>
-                        </div>
-                        <section id="accountcreationsidetext">
-                            <ul>
-                                <li>Create Account</li>
-                                <li>Chat with Friends</li>
-                                <li>Have Fun</li>
-                            </ul>
-                        </section>
-                    </div>
-                    <div id=accountcreation>
-                        <button id="createaccountbutton">Create an Account</button>
-                        <section id="loginsidetext">
-                            <ul>
-                                <li>Welcome Back</li>
-                                <li>Going to your Homepage</li>
-                            </ul>
-                        </section>
-                        <p id = o_p_p>
-                            Create your Account:
-                        </p>
-                        <form action="register.py" method="post" id="createaccount">
-                            <label for="firstname">Enter Details: </label>
-                            <input type="text" name="firstname" id="firstname" placeholder="Firstname"/>
-                            <input type="text" name="lastname" id="lastname" placeholder="Lastname" />
-                            <label for ="email">Username must not contain spaces</label>
-                            <input type="text" name="email" id="email" placeholder="Username" />
-                            <input type="password" name="password" id="newpassword" placeholder="New password" />
-                            <label for="birthday">Birthday: </label>
-                            <input type="date" name="birthday" id="birthday" />
-                            <label for="gender" id = "genderlabel">Gender: </label>
-                            <label for="male">Male</label>
-                            <input type="radio" name="gender" value="Male" id="male" />
-                            <label for="female">Female</label>
-                            <input type="radio" name="gender" value="Female" id="female" />
-                            <input type="submit" value="Create Account"  id = "submitbutton"/>
-                        </form>
-                        <div id = "closeca">
-                            <button id="closecreateaccount">Close Create an Account</button>
-                        </div>
-                    </div>
+            result="""<body>
 
-                </main>
+              <form class="form-signin">
+              <p>Hello1</p>
+                <img class="mb-4" src="{{ site.baseurl }}/docs/{{ site.docs_version }}/assets/brand/bootstrap-solid.svg" alt="" width="72" height="72">
+                <h1 class="h3 mb-3 font-weight-normal"><center><img src="./assets/just_logo.png" width="125px" height="125px"></center></h1>
+                <label for="inputEmail" class="sr-only">Email address</label>
+                <input name="email" type="email" id="inputEmail" class="form-control" placeholder="Email address" required autofocus>
+                <label for="inputPassword" class="sr-only">Password</label>
+                <input name="password"type="password" id="inputPassword" class="form-control" placeholder="Password" required>
+                <div class="checkbox mb-3">
+                  <label>
+                    <input type="checkbox" value="remember-me"> Remember me
+                  </label>
+                </div>
+                <button class="landing btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+              </form>
+
+              <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+              <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+              <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
             </body>"""
-
     #else no sid cookie present
     else:
         form_data = FieldStorage()
-        email = escape(form_data.getfirst('username', "").strip())
+        email = escape(form_data.getfirst('email', "").strip())
         password = escape(form_data.getfirst('password', "").strip())
 
         sha256_password = sha256(password.encode()).hexdigest()
         if email != '':
-            connection = db.connect('localhost:8080', 'root', 'root', 'schoolify')
+            connection = db.connect('cs1.ucc.ie', 'rjf1', 'ahf1Aeho', '2021_rjf1')
             cursor = connection.cursor(db.cursors.DictCursor)
             search_result = cursor.execute("""SELECT * FROM users WHERE email = %s AND passwrd = %s""" , (email, sha256_password))
 
@@ -118,140 +78,59 @@ if http_cookie_header:
                 cursor.close()
                 connection.close()
                 print(cookie)
-                print('Location: homepage.py')
+                print('Location: teacher.py')
 
-            #else user not found, redisplay login
             else:
-                result = """<body>
-                <header>
-                    <h1>Homepage</h1>
-                    <h1>Login or Sign Up Below</h1>
-                </header>
-                <main>
-                    <div id ="logindiv">
-                        <button id="loginbutton">Login</button>
-                        <p id = o_p_o style="color:red">
-                            Incorrect details entered. Please check credentials and try again:
-                        </p>
-                        <form action="login.py" method="post" id="login">
-                            <label for="username">Enter Username: </label>
-                            <input type="text" name="username" id="username" />
-                            <label for="password">Enter Password: </label>
-                            <input type="password" name="password" id="password" />
-                            <input type="submit" value="Login" id = "submitbutton"/>
-                        </form>
-                        <div id = "closelog">
-                            <button id="closelogin">Close Login</button>
-                        </div>
-                        <section id="accountcreationsidetext">
-                            <ul>
-                                <li>Create Account</li>
-                                <li>Chat with Friends</li>
-                                <li>Have Fun</li>
-                            </ul>
-                        </section>
-                    </div>
-                    <div id=accountcreation>
-                        <button id="createaccountbutton">Create an Account</button>
-                        <section id="loginsidetext">
-                            <ul>
-                                <li>Welcome Back</li>
-                                <li>Going to your Homepage</li>
-                            </ul>
-                        </section>
-                        <p id = o_p_p>
-                            Create your Account:
-                        </p>
-                        <form action="register.py" method="post" id="createaccount">
-                            <label for="firstname">Enter Details: </label>
-                            <input type="text" name="firstname" id="firstname" placeholder="Firstname"/>
-                            <input type="text" name="lastname" id="lastname" placeholder="Lastname" />
-                            <label for ="email">Username must not contain spaces</label>
-                            <input type="text" name="email" id="email" placeholder="Username" />
-                            <input type="password" name="password" id="newpassword" placeholder="New password" />
-                            <label for="birthday">Birthday: </label>
-                            <input type="date" name="birthday" id="birthday" />
-                            <label for="gender" id = "genderlabel">Gender: </label>
-                            <label for="male">Male</label>
-                            <input type="radio" name="gender" value="Male" id="male" />
-                            <label for="female">Female</label>
-                            <input type="radio" name="gender" value="Female" id="female" />
-                            <input type="submit" value="Create Account"  id = "submitbutton"/>
-                        </form>
-                        <div id = "closeca">
-                            <button id="closecreateaccount">Close Create an Account</button>
-                        </div>
-                    </div>
+                result="""
+                <body>
 
-                </main>
-            </body>"""
-            connection.commit()
-            cursor.close()
-            connection.close()
+                  <form class="form-signin">
+                  <p>Hello2</p>
+                    <img class="mb-4" src="{{ site.baseurl }}/docs/{{ site.docs_version }}/assets/brand/bootstrap-solid.svg" alt="" width="72" height="72">
+                    <h1 class="h3 mb-3 font-weight-normal"><center><img src="./assets/just_logo.png" width="125px" height="125px"></center></h1>
+                    <label for="inputEmail" class="sr-only">Email address</label>
+                    <input name="email" type="email" id="inputEmail" class="form-control" placeholder="Email address" required autofocus>
+                    <label for="inputPassword" class="sr-only">Password</label>
+                    <input name="password"type="password" id="inputPassword" class="form-control" placeholder="Password" required>
+                    <div class="checkbox mb-3">
+                      <label>
+                        <input type="checkbox" value="remember-me"> Remember me
+                      </label>
+                    </div>
+                    <button class="landing btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+                  </form>
 
-        #no credentials given, display original login page
+                  <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+                  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+                  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+                </body>"""
+                connection.commit()
+                cursor.close()
+                connection.close()
         else:
-            result = """<body>
-                <header>
-                    <h1>Homepage</h1>
-                    <h1>Login or Sign Up Below</h1>
-                </header>
-                <main>
-                    <div id ="logindiv">
-                        <button id="loginbutton">Login</button>
-                        <form action="login.py" method="post" id="login">
-                            <label for="username">Enter Username: </label>
-                            <input type="text" name="username" id="username" />
-                            <label for="password">Enter Password: </label>
-                            <input type="password" name="password" id="password" />
-                            <input type="submit" value="Login" id = "submitbutton"/>
-                        </form>
-                        <div id = "closelog">
-                            <button id="closelogin">Close Login</button>
-                        </div>
-                        <section id="accountcreationsidetext">
-                            <ul>
-                                <li>Create Account</li>
-                                <li>Chat with Friends</li>
-                                <li>Have Fun</li>
-                            </ul>
-                        </section>
-                    </div>
-                    <div id=accountcreation>
-                        <button id="createaccountbutton">Create an Account</button>
-                        <section id="loginsidetext">
-                            <ul>
-                                <li>Welcome Back</li>
-                                <li>Going to your Homepage</li>
-                            </ul>
-                        </section>
-                        <p id = o_p_p>
-                            Create your Account:
-                        </p>
-                        <form action="register.py" method="post" id="createaccount">
-                            <label for="firstname">Enter Details: </label>
-                            <input type="text" name="firstname" id="firstname" placeholder="Firstname"/>
-                            <input type="text" name="lastname" id="lastname" placeholder="Lastname" />
-                            <label for ="email">Username must not contain spaces</label>
-                            <input type="text" name="email" id="email" placeholder="Username" />
-                            <input type="password" name="password" id="newpassword" placeholder="New password" />
-                            <label for="birthday">Birthday: </label>
-                            <input type="date" name="birthday" id="birthday" />
-                            <label for="gender" id = "genderlabel">Gender: </label>
-                            <label for="male">Male</label>
-                            <input type="radio" name="gender" value="Male" id="male" />
-                            <label for="female">Female</label>
-                            <input type="radio" name="gender" value="Female" id="female" />
-                            <input type="submit" value="Create Account"  id = "submitbutton"/>
-                        </form>
-                        <div id = "closeca">
-                            <button id="closecreateaccount">Close Create an Account</button>
-                        </div>
-                    </div>
+            result="""
+            <body>
 
-                </main>
+              <form class="form-signin">
+              <p>Hello3</p>
+                <img class="mb-4" src="{{ site.baseurl }}/docs/{{ site.docs_version }}/assets/brand/bootstrap-solid.svg" alt="" width="72" height="72">
+                <h1 class="h3 mb-3 font-weight-normal"><center><img src="./assets/just_logo.png" width="125px" height="125px"></center></h1>
+                <label for="inputEmail" class="sr-only">Email address</label>
+                <input name="email" type="email" id="inputEmail" class="form-control" placeholder="Email address" required autofocus>
+                <label for="inputPassword" class="sr-only">Password</label>
+                <input name="password"type="password" id="inputPassword" class="form-control" placeholder="Password" required>
+                <div class="checkbox mb-3">
+                  <label>
+                    <input type="checkbox" value="remember-me"> Remember me
+                  </label>
+                </div>
+                <button class="landing btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+              </form>
+
+              <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+              <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+              <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
             </body>"""
-
 #zero cookies present
 else:
     form_data = FieldStorage()
@@ -261,7 +140,7 @@ else:
     sha256_password = sha256(password.encode()).hexdigest()
     if email != '':
 
-        connection = db.connect('localhost:8080', 'root', 'root', 'schoolify')
+        connection = db.connect('cs1.ucc.ie', 'rjf1', 'ahf1Aeho', '2021_rjf1')
         cursor = connection.cursor(db.cursors.DictCursor)
         cursor.execute("""SELECT * FROM users WHERE email = %s AND passwrd = %s""" , (email, sha256_password))
 
@@ -279,133 +158,55 @@ else:
             cursor.close()
             connection.close()
         else:
-            result = """<body>
-                    <header>
-                        <h1>Homepage</h1>
-                        <h1>Login or Sign Up Below</h1>
-                    </header>
-                    <main>
-                        <div id ="logindiv">
-                            <button id="loginbutton">Login</button>
-                            <p id = o_p_o style="color:red">
-                                Incorrect details entered. Please check credentials and try again:
-                            </p>
-                            <form action="login.py" method="post" id="login">
-                                <label for="username">Enter Username: </label>
-                                <input type="text" name="username" id="username" />
-                                <label for="password">Enter Password: </label>
-                                <input type="password" name="password" id="password" />
-                                <input type="submit" value="Login" id = "submitbutton"/>
-                            </form>
-                            <div id = "closelog">
-                                <button id="closelogin">Close Login</button>
-                            </div>
-                            <section id="accountcreationsidetext">
-                                <ul>
-                                    <li>Create Account</li>
-                                    <li>Chat with Friends</li>
-                                    <li>Have Fun</li>
-                                </ul>
-                            </section>
-                        </div>
-                        <div id=accountcreation>
-                            <button id="createaccountbutton">Create an Account</button>
-                            <section id="loginsidetext">
-                                <ul>
-                                    <li>Welcome Back</li>
-                                    <li>Going to your homepage</li>
-                                </ul>
-                            </section>
-                            <p id = o_p_p>
-                                Create your Account:
-                            </p>
-                            <form action="register.py" method="post" id="createaccount">
-                                <label for="firstname">Enter Details: </label>
-                                <input type="text" name="firstname" id="firstname" placeholder="Firstname"/>
-                                <input type="text" name="lastname" id="lastname" placeholder="Lastname" />
-                                <label for ="email">Username must not contain spaces</label>
-                                <input type="text" name="email" id="email" placeholder="Username" />
-                                <input type="password" name="password" id="newpassword" placeholder="New password" />
-                                <label for="birthday">Birthday: </label>
-                                <input type="date" name="birthday" id="birthday" />
-                                <label for="gender" id = "genderlabel">Gender: </label>
-                                <label for="male">Male</label>
-                                <input type="radio" name="gender" value="Male" id="male" />
-                                <label for="female">Female</label>
-                                <input type="radio" name="gender" value="Female" id="female" />
-                                <input type="submit" value="Create Account"  id = "submitbutton"/>
-                            </form>
-                            <div id = "closeca">
-                                <button id="closecreateaccount">Close Create an Account</button>
-                            </div>
-                        </div>
+            result="""
+            <body>
 
-                    </main>
-                </body>"""
+              <form class="form-signin">
+              <p>Hello4</p>
+                <img class="mb-4" src="{{ site.baseurl }}/docs/{{ site.docs_version }}/assets/brand/bootstrap-solid.svg" alt="" width="72" height="72">
+                <h1 class="h3 mb-3 font-weight-normal"><center><img src="./assets/just_logo.png" width="125px" height="125px"></center></h1>
+                <label for="inputEmail" class="sr-only">Email address</label>
+                <input name="email" type="email" id="inputEmail" class="form-control" placeholder="Email address" required autofocus>
+                <label for="inputPassword" class="sr-only">Password</label>
+                <input name="password"type="password" id="inputPassword" class="form-control" placeholder="Password" required>
+                <div class="checkbox mb-3">
+                  <label>
+                    <input type="checkbox" value="remember-me"> Remember me
+                  </label>
+                </div>
+                <button class="landing btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+              </form>
+
+              <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+              <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+              <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+            </body>"""
+
     else:
-       result = """<body>
-                    <header>
-                        <h1>Homepage</h1>
-                        <h1>Login or Sign Up Below</h1>
-                    </header>
-                    <main>
-                        <div id ="logindiv">
-                            <button id="loginbutton">Login</button>
-                            <p id = o_p_o style="color:red">
-                                Incorrect details entered. Please check credentials and try again:
-                            </p>
-                            <form action="login.py" method="post" id="login">
-                                <label for="username">Enter Username: </label>
-                                <input type="text" name="username" id="username" />
-                                <label for="password">Enter Password: </label>
-                                <input type="password" name="password" id="password" />
-                                <input type="submit" value="Login" id = "submitbutton"/>
-                            </form>
-                            <div id = "closelog">
-                                <button id="closelogin">Close Login</button>
-                            </div>
-                            <section id="accountcreationsidetext">
-                                <ul>
-                                    <li>Create Account</li>
-                                    <li>Chat with Friends</li>
-                                    <li>Have Fun</li>
-                                </ul>
-                            </section>
-                        </div>
-                        <div id=accountcreation>
-                            <button id="createaccountbutton">Create an Account</button>
-                            <section id="loginsidetext">
-                                <ul>
-                                    <li>Welcome Back</li>
-                                    <li>Going to your homepage</li>
-                                </ul>
-                            </section>
-                            <p id = o_p_p>
-                                Create your Account:
-                            </p>
-                            <form action="register.py" method="post" id="createaccount">
-                                <label for="firstname">Enter Details: </label>
-                                <input type="text" name="firstname" id="firstname" placeholder="Firstname"/>
-                                <input type="text" name="lastname" id="lastname" placeholder="Lastname" />
-                                <label for ="email">Username must not contain spaces</label>
-                                <input type="text" name="email" id="email" placeholder="Username" />
-                                <input type="password" name="password" id="newpassword" placeholder="New password" />
-                                <label for="birthday">Birthday: </label>
-                                <input type="date" name="birthday" id="birthday" />
-                                <label for="gender" id = "genderlabel">Gender: </label>
-                                <label for="male">Male</label>
-                                <input type="radio" name="gender" value="Male" id="male" />
-                                <label for="female">Female</label>
-                                <input type="radio" name="gender" value="Female" id="female" />
-                                <input type="submit" value="Create Account"  id = "submitbutton"/>
-                            </form>
-                            <div id = "closeca">
-                                <button id="closecreateaccount">Close Create an Account</button>
-                            </div>
-                        </div>
+        result="""
+        <body>
 
-                    </main>
-                </body>"""
+          <form class="form-signin">
+          <p>Hello5</p>
+            <!--<img class="mb-4" src="{{ site.baseurl }}/docs/{{ site.docs_version }}/assets/brand/bootstrap-solid.svg" alt="" width="72" height="72">-->
+            <h1 class="h3 mb-3 font-weight-normal"><center><img src="../assets/just_logo.png" width="125px" height="125px"></center></h1>
+            <label for="inputEmail" class="sr-only">Email address</label>
+            <input name="email" type="email" id="inputEmail" class="form-control" placeholder="Email address" required autofocus>
+            <label for="inputPassword" class="sr-only">Password</label>
+            <input name="password"type="password" id="inputPassword" class="form-control" placeholder="Password" required>
+            <div class="checkbox mb-3">
+              <label>
+                <input type="checkbox" value="remember-me"> Remember me
+              </label>
+            </div>
+            <button class="landing btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+          </form>
+
+          <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+          <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+          <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+        </body>"""
+
 
 
 print('Content-Type: text/html')
@@ -415,12 +216,16 @@ print("""
     <!DOCTYPE html>
         <html lang="en">
             <head>
-                <meta charset="utf-8" />
-                <title>Login</title>
-                <link rel="stylesheet" href="index.css" />
-                <link href="https://fonts.googleapis.com/css?family=Fira+Sans" rel="stylesheet">
-                <script src="login1.js"></script>
-                <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+              <meta charset="utf-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+              <!-- Bootstrap CSS -->
+              <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+              <link rel="stylesheet" href="../css/style.css">
+              <!--<link rel="icon" href="./assets/favicon.ico" type="image/x-icon">-->
+
+              <title>Schoolify</title>
             </head>
             %s
-        </html>""" % (result))
+            %s
+        </html>""" % (result,http_cookie_header))
