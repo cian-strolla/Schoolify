@@ -13,11 +13,7 @@ print()
 result = ''
 student_firstname = ''
 student_lastname = ''
-<<<<<<< HEAD:src/cgi-bin/teacher.py
 student_phone_number=''
-=======
-student_phone_number = ''
->>>>>>> 7573e1ef6c22ff8bb3fcc81a5b51ccdaa1b0ceaa:src/teacher.py
 form_data = FieldStorage()
 student_id = ''
 address = ''
@@ -61,8 +57,8 @@ print("""
         <!-- Bootstrap CSS -->
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
         <!-- Overriding CSS -->
-        <link rel="stylesheet" href="../css/style.css">
-        <link rel="icon" href="../assets/favicon.ico" type="image/x-icon">
+        <link rel="stylesheet" href="./css/style.css">
+        <link rel="icon" href="./assets/favicon.ico" type="image/x-icon">
 
         <!-- FontAwesome Icons -->
         <script src="https://kit.fontawesome.com/44c51e0d9c.js" crossorigin="anonymous"></script>
@@ -80,7 +76,7 @@ print("""
 
               <ul class="nav flex-column">
                 <li>
-                  <img src="../assets/just_logo_whiteBG.png" width="60px" height="60px">
+                  <img src="./assets/just_logo_whiteBG.png" width="60px" height="60px">
                   <a class="#nav-link" href="#schoolify">Schoolify</a>
                 </li>
                 <li>
