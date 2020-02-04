@@ -13,6 +13,7 @@ print()
 result = ''
 student_firstname = ''
 student_lastname = ''
+student_phone_number = ''
 form_data = FieldStorage()
 student_id = ''
 address = ''
@@ -136,4 +137,3 @@ print("""
       </body>
     </html>
     """ % (student_id, student_firstname, student_lastname, address, eircode, student_phone_number))
-
