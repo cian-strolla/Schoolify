@@ -34,7 +34,7 @@ if http_cookie_header:
         else:
             result="""<body>
 
-              <form class="form-signin">
+              <form action="login.py" class="form-signin">
               <p>Hello1</p>
                 <img class="mb-4" src="{{ site.baseurl }}/docs/{{ site.docs_version }}/assets/brand/bootstrap-solid.svg" alt="" width="72" height="72">
                 <h1 class="h3 mb-3 font-weight-normal"><center><img src="./assets/just_logo.png" width="125px" height="125px"></center></h1>
@@ -60,11 +60,10 @@ if http_cookie_header:
         email = escape(form_data.getfirst('email', "").strip())
         password = escape(form_data.getfirst('password', "").strip())
 
-        sha256_password = sha256(password.encode()).hexdigest()
         if email != '':
             connection = db.connect('cs1.ucc.ie', 'rjf1', 'ahf1Aeho', '2021_rjf1')
             cursor = connection.cursor(db.cursors.DictCursor)
-            search_result = cursor.execute("""SELECT * FROM users WHERE email = %s AND passwrd = %s""" , (email, sha256_password))
+            search_result = cursor.execute("""SELECT * FROM users WHERE email = %s AND password = %s""" , (email, password))
 
             #user found and password match, issue cookie and redirect to homepage
             if search_result == 1:
@@ -84,7 +83,7 @@ if http_cookie_header:
                 result="""
                 <body>
 
-                  <form class="form-signin">
+                  <form action="login.py" class="form-signin">
                   <p>Hello2</p>
                     <img class="mb-4" src="{{ site.baseurl }}/docs/{{ site.docs_version }}/assets/brand/bootstrap-solid.svg" alt="" width="72" height="72">
                     <h1 class="h3 mb-3 font-weight-normal"><center><img src="./assets/just_logo.png" width="125px" height="125px"></center></h1>
@@ -111,7 +110,7 @@ if http_cookie_header:
             result="""
             <body>
 
-              <form class="form-signin">
+              <form action="login.py" class="form-signin">
               <p>Hello3</p>
                 <img class="mb-4" src="{{ site.baseurl }}/docs/{{ site.docs_version }}/assets/brand/bootstrap-solid.svg" alt="" width="72" height="72">
                 <h1 class="h3 mb-3 font-weight-normal"><center><img src="./assets/just_logo.png" width="125px" height="125px"></center></h1>
@@ -161,7 +160,7 @@ else:
             result="""
             <body>
 
-              <form class="form-signin">
+              <form action="login.py" class="form-signin">
               <p>Hello4</p>
                 <img class="mb-4" src="{{ site.baseurl }}/docs/{{ site.docs_version }}/assets/brand/bootstrap-solid.svg" alt="" width="72" height="72">
                 <h1 class="h3 mb-3 font-weight-normal"><center><img src="./assets/just_logo.png" width="125px" height="125px"></center></h1>
@@ -186,7 +185,7 @@ else:
         result="""
         <body>
 
-          <form class="form-signin">
+          <form action="login.py" class="form-signin">
           <p>Hello5</p>
             <!--<img class="mb-4" src="{{ site.baseurl }}/docs/{{ site.docs_version }}/assets/brand/bootstrap-solid.svg" alt="" width="72" height="72">-->
             <h1 class="h3 mb-3 font-weight-normal"><center><img src="../assets/just_logo.png" width="125px" height="125px"></center></h1>
@@ -221,11 +220,10 @@ print("""
 
               <!-- Bootstrap CSS -->
               <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-              <link rel="stylesheet" href="../css/style.css">
+              <link rel="stylesheet" href="./css/style.css">
               <!--<link rel="icon" href="./assets/favicon.ico" type="image/x-icon">-->
 
               <title>Schoolify</title>
             </head>
             %s
-            %s
-        </html>""" % (result,http_cookie_header))
+        </html>""" % (result))
