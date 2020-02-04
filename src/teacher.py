@@ -13,7 +13,11 @@ print()
 result = ''
 student_firstname = ''
 student_lastname = ''
+<<<<<<< HEAD:src/cgi-bin/teacher.py
 student_phone_number=''
+=======
+student_phone_number = ''
+>>>>>>> 7573e1ef6c22ff8bb3fcc81a5b51ccdaa1b0ceaa:src/teacher.py
 form_data = FieldStorage()
 student_id = ''
 address = ''
@@ -137,4 +141,3 @@ print("""
       </body>
     </html>
     """ % (student_id, student_firstname, student_lastname, address, eircode, student_phone_number))
-
