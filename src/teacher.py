@@ -3,12 +3,16 @@
 from cgitb import enable
 enable()
 
-from cgi import FieldStorage
+from cgi import FieldStorage, escape
 import pymysql as db
+from hashlib import sha256
+from time import time
+from shelve import open
+from http.cookies import SimpleCookie
+from os import environ
 from html import escape
 
-print('Content-Type: text/html')
-print()
+
 
 result = ''
 student_firstname = ''
@@ -18,33 +22,53 @@ form_data = FieldStorage()
 student_id = ''
 address = ''
 eircode = ''
-if len(form_data) != 0:
-    try:
-        student_id = escape(form_data.getfirst('student_id'))
-        connection = db.connect('cs1.ucc.ie', 'rjf1', 'ahf1Aeho', '2021_rjf1')
-        cursor = connection.cursor(db.cursors.DictCursor)
 
-        cursor.execute("""SELECT * FROM students
-                        WHERE student_id = '%s'""" % (student_id))
-        for row in cursor.fetchall():
-            #result+=row
-            student_firstname = row['first_name']
-            student_lastname = row['last_name']
-            student_phone_number = row['phone_number']
-        #result += '</table>'
-        cursor.close()
-        cursor = connection.cursor(db.cursors.DictCursor)
+cookie = SimpleCookie()
+http_cookie_header = environ.get('HTTP_COOKIE')
 
-        cursor.execute("""SELECT * FROM addresses
-                        WHERE student_id = '%s'""" % (student_id))
-        for row in cursor.fetchall():
-            address = row['address']
-            eircode = row['eircode']
+#if cookie present
+if http_cookie_header:
+    cookie.load(http_cookie_header)
+    #if sid cookie
+    if 'sid' in cookie:
+        sid = cookie['sid'].value
+        session_store = open('sess_' + sid, writeback=False)
+        #if authenticated cookie redirect to homepage
+        if session_store.get('authenticated'):
+            if len(form_data) != 0:
+                try:
+                    student_id = escape(form_data.getfirst('student_id'))
+                    connection = db.connect('cs1.ucc.ie', 'rjf1', 'ahf1Aeho', '2021_rjf1')
+                    cursor = connection.cursor(db.cursors.DictCursor)
 
-        cursor.close()
-        connection.close()
-    except db.Error:
-        result = '<p>Sorry! We are experiencing problems at the moment. Please call back later.</p>'
+                    cursor.execute("""SELECT * FROM students
+                                    WHERE student_id = '%s'""" % (student_id))
+                    for row in cursor.fetchall():
+                        #result+=row
+                        student_firstname = row['first_name']
+                        student_lastname = row['last_name']
+                        student_phone_number = row['phone_number']
+                    #result += '</table>'
+                    cursor.close()
+                    cursor = connection.cursor(db.cursors.DictCursor)
+
+                    cursor.execute("""SELECT * FROM addresses
+                                    WHERE student_id = '%s'""" % (student_id))
+                    for row in cursor.fetchall():
+                        address = row['address']
+                        eircode = row['eircode']
+
+                    cursor.close()
+                    connection.close()
+                except db.Error:
+                    result = '<p>Sorry! We are experiencing problems at the moment. Please call back later.</p>'
+
+
+        else:
+            print('Location: login.py')
+
+print('Content-Type: text/html')
+print()
 
 print("""
     <!DOCTYPE html>

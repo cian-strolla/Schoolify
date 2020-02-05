@@ -19,72 +19,71 @@ display = ''
 cookie = SimpleCookie()
 http_cookie_header = environ.get('HTTP_COOKIE')
 
+form_data = FieldStorage()
+email = escape(form_data.getfirst('email', "").strip())
+password = escape(form_data.getfirst('password', "").strip())
 
-#if cookie present
-if http_cookie_header:
-    cookie.load(http_cookie_header)
-    #if sid cookie
-    if 'sid' in cookie:
-        sid = cookie['sid'].value
-        session_store = open('sess_' + sid, writeback=False)
-        #if authenticated cookie redirect to homepage
-        if session_store.get('authenticated'):
-            print('Location: teacher.py')
-        #else unauthenticated cookie, display login/signup
-        else:
-            result="""<body>
+if email != '':
+    connection = db.connect('cs1.ucc.ie', 'rjf1', 'ahf1Aeho', '2021_rjf1')
+    cursor = connection.cursor(db.cursors.DictCursor)
+    search_result = cursor.execute("""SELECT * FROM users WHERE email = %s AND password = %s""" , (email, password))
 
-              <form action="login.py" class="form-signin">
-              <p>Hello1</p>
-                <img class="mb-4" src="{{ site.baseurl }}/docs/{{ site.docs_version }}/assets/brand/bootstrap-solid.svg" alt="" width="72" height="72">
-                <h1 class="h3 mb-3 font-weight-normal"><center><img src="./assets/just_logo.png" width="125px" height="125px"></center></h1>
-                <label for="inputEmail" class="sr-only">Email address</label>
-                <input name="email" type="email" id="inputEmail" class="form-control" placeholder="Email address" required autofocus>
-                <label for="inputPassword" class="sr-only">Password</label>
-                <input name="password"type="password" id="inputPassword" class="form-control" placeholder="Password" required>
-                <div class="checkbox mb-3">
-                  <label>
-                    <input type="checkbox" value="remember-me"> Remember me
-                  </label>
-                </div>
-                <button class="landing btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
-              </form>
-
-              <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
-              <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
-              <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
-            </body>"""
-    #else no sid cookie present
+    #user found and password match, issue cookie and redirect to homepage
+    if search_result == 1:
+        cookie = SimpleCookie()
+        sid = sha256(repr(time()).encode()).hexdigest()
+        cookie['sid'] = sid
+        session_store = open('sess_' + sid, writeback=True)
+        session_store['authenticated'] = True
+        session_store['username'] = email
+        session_store.close()
+        cursor.close()
+        connection.close()
+        print(cookie)
+        print('Location: teacher.py')
+    # incorrect username or password
     else:
-        form_data = FieldStorage()
-        email = escape(form_data.getfirst('email', "").strip())
-        password = escape(form_data.getfirst('password', "").strip())
+        result="""<body>
 
-        if email != '':
-            connection = db.connect('cs1.ucc.ie', 'rjf1', 'ahf1Aeho', '2021_rjf1')
-            cursor = connection.cursor(db.cursors.DictCursor)
-            search_result = cursor.execute("""SELECT * FROM users WHERE email = %s AND password = %s""" , (email, password))
+          <form action="login.py" class="form-signin">
+            <img class="mb-4" src="{{ site.baseurl }}/docs/{{ site.docs_version }}/assets/brand/bootstrap-solid.svg" alt="" width="72" height="72">
+            <h1 class="h3 mb-3 font-weight-normal"><center><img src="./assets/just_logo.png" width="125px" height="125px"></center></h1>
+            <p class="error-message"> Incorrect Username or Password </p>
+            <p class="error-message"> Please try again </p>
+            <label for="inputEmail" class="sr-only">Email address</label>
+            <input name="email" type="email" id="inputEmail" class="form-control" placeholder="Email address" required autofocus>
+            <label for="inputPassword" class="sr-only">Password</label>
+            <input name="password"type="password" id="inputPassword" class="form-control" placeholder="Password" required>
+            <div class="checkbox mb-3">
+              <label>
+                <input type="checkbox" value="remember-me"> Remember me
+              </label>
+            </div>
+            <button class="landing btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+          </form>
 
-            #user found and password match, issue cookie and redirect to homepage
-            if search_result == 1:
-                cookie = SimpleCookie()
-                sid = sha256(repr(time()).encode()).hexdigest()
-                cookie['sid'] = sid
-                session_store = open('sess_' + sid, writeback=True)
-                session_store['authenticated'] = True
-                session_store['username'] = email
-                session_store.close()
-                cursor.close()
-                connection.close()
-                print(cookie)
+          <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+          <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+          <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+        </body>"""
+
+#if form is empty
+else:
+    #if cookie present
+    if http_cookie_header:
+        cookie.load(http_cookie_header)
+        #if sid cookie
+        if 'sid' in cookie:
+            sid = cookie['sid'].value
+            session_store = open('sess_' + sid, writeback=False)
+            #if authenticated cookie redirect to homepage
+            if session_store.get('authenticated'):
                 print('Location: teacher.py')
-
+            #else unauthenticated cookie, display login/signup
             else:
-                result="""
-                <body>
+                result="""<body>
 
                   <form action="login.py" class="form-signin">
-                  <p>Hello2</p>
                     <img class="mb-4" src="{{ site.baseurl }}/docs/{{ site.docs_version }}/assets/brand/bootstrap-solid.svg" alt="" width="72" height="72">
                     <h1 class="h3 mb-3 font-weight-normal"><center><img src="./assets/just_logo.png" width="125px" height="125px"></center></h1>
                     <label for="inputEmail" class="sr-only">Email address</label>
@@ -103,15 +102,11 @@ if http_cookie_header:
                   <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
                   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
                 </body>"""
-                connection.commit()
-                cursor.close()
-                connection.close()
+        #else no sid cookie present
         else:
             result="""
             <body>
-
               <form action="login.py" class="form-signin">
-              <p>Hello3</p>
                 <img class="mb-4" src="{{ site.baseurl }}/docs/{{ site.docs_version }}/assets/brand/bootstrap-solid.svg" alt="" width="72" height="72">
                 <h1 class="h3 mb-3 font-weight-normal"><center><img src="./assets/just_logo.png" width="125px" height="125px"></center></h1>
                 <label for="inputEmail" class="sr-only">Email address</label>
@@ -130,65 +125,15 @@ if http_cookie_header:
               <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
               <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
             </body>"""
-#zero cookies present
-else:
-    form_data = FieldStorage()
-    email = escape(form_data.getfirst('username', "").strip())
-    password = escape(form_data.getfirst('password', "").strip())
-
-    sha256_password = sha256(password.encode()).hexdigest()
-    if email != '':
-
-        connection = db.connect('cs1.ucc.ie', 'rjf1', 'ahf1Aeho', '2021_rjf1')
-        cursor = connection.cursor(db.cursors.DictCursor)
-        cursor.execute("""SELECT * FROM users WHERE email = %s AND passwrd = %s""" , (email, sha256_password))
-
-
-        if cursor.rowcount == 1:
-            cookie = SimpleCookie()
-            sid = sha256(repr(time()).encode()).hexdigest()
-            cookie['sid'] = sid
-            session_store = open('sess_' + sid, writeback=True)
-            session_store['authenticated'] = True
-            session_store['username'] = email
-            session_store.close()
-            print(cookie)
-            print('Location: homepage.py')
-            cursor.close()
-            connection.close()
-        else:
-            result="""
-            <body>
-
-              <form action="login.py" class="form-signin">
-              <p>Hello4</p>
-                <img class="mb-4" src="{{ site.baseurl }}/docs/{{ site.docs_version }}/assets/brand/bootstrap-solid.svg" alt="" width="72" height="72">
-                <h1 class="h3 mb-3 font-weight-normal"><center><img src="./assets/just_logo.png" width="125px" height="125px"></center></h1>
-                <label for="inputEmail" class="sr-only">Email address</label>
-                <input name="email" type="email" id="inputEmail" class="form-control" placeholder="Email address" required autofocus>
-                <label for="inputPassword" class="sr-only">Password</label>
-                <input name="password"type="password" id="inputPassword" class="form-control" placeholder="Password" required>
-                <div class="checkbox mb-3">
-                  <label>
-                    <input type="checkbox" value="remember-me"> Remember me
-                  </label>
-                </div>
-                <button class="landing btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
-              </form>
-
-              <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
-              <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
-              <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
-            </body>"""
-
+    #zero cookies present
     else:
+
         result="""
         <body>
 
           <form action="login.py" class="form-signin">
-          <p>Hello5</p>
-            <!--<img class="mb-4" src="{{ site.baseurl }}/docs/{{ site.docs_version }}/assets/brand/bootstrap-solid.svg" alt="" width="72" height="72">-->
-            <h1 class="h3 mb-3 font-weight-normal"><center><img src="../assets/just_logo.png" width="125px" height="125px"></center></h1>
+            <img class="mb-4" src="{{ site.baseurl }}/docs/{{ site.docs_version }}/assets/brand/bootstrap-solid.svg" alt="" width="72" height="72">
+            <h1 class="h3 mb-3 font-weight-normal"><center><img src="./assets/just_logo.png" width="125px" height="125px"></center></h1>
             <label for="inputEmail" class="sr-only">Email address</label>
             <input name="email" type="email" id="inputEmail" class="form-control" placeholder="Email address" required autofocus>
             <label for="inputPassword" class="sr-only">Password</label>
@@ -205,6 +150,7 @@ else:
           <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
           <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
         </body>"""
+
 
 
 
