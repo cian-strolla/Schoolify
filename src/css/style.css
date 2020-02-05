@@ -94,7 +94,7 @@ body {
   font-size: 1.35rem;
   text-align: center;
 }
-#attendance {
+#attendance , #homework{
   margin-left: 2em;
   margin-top: 2em;
 }
