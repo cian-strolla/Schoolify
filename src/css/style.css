@@ -94,3 +94,22 @@ body {
   font-size: 1.35rem;
   text-align: center;
 }
+#attendance {
+  margin-left: 2em;
+  margin-top: 2em;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+table {
+  margin-top: 1em;
+}
+
