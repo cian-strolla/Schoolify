@@ -22,6 +22,7 @@ form_data = FieldStorage()
 student_id = ''
 address = ''
 eircode = ''
+file = ["","","",""]
 
 cookie = SimpleCookie()
 http_cookie_header = environ.get('HTTP_COOKIE')
@@ -58,6 +59,19 @@ if http_cookie_header:
                         address = row['address']
                         eircode = row['eircode']
 
+                    cursor.close()
+                    cursor = connection.cursor(db.cursors.DictCursor)
+                    
+                    cursor.execute("""SELECT * FROM homework 
+                                    WHERE student_id = '%s'""" % (student_id))
+                    # append all file submissions even if null
+                    for row in cursor.fetchall():
+                        #only possible to submit 4 files now for simplicity
+                        for i in range(1,5):
+                            file[0] = row['file1']
+                            file[1] = row['file2']
+                            file[2] = row['file3']
+                            file[3] = row['file4']
                     cursor.close()
                     connection.close()
                 except db.Error:
@@ -173,6 +187,30 @@ print("""
                       </tr>
                   </table>
                 </div>
+                <div id="homework">
+						<h1>Homework</h1>
+					<table>
+						<tr>
+							<th>Week</th>
+							<th>Submission</th>
+						</tr>
+						<tr>
+							<td>Week1</td>
+							<td>%s</td>
+						</tr>
+						<tr>
+							<td>Week2</td>
+							<td>%s</td>
+						</tr>
+						<tr>
+							<td>Week3</td>
+							<td>%s</td>
+						</tr>
+						<tr>
+							<td>Week4</td>
+							<td>%s</td>
+						</tr>
+					</table>
               </div>
             </div>
           </div>
@@ -182,4 +220,4 @@ print("""
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
       </body>
     </html>
-    """ % (student_id, student_firstname, student_lastname, address, eircode, student_phone_number))
+    """ % (student_id, student_firstname, student_lastname, address, eircode, student_phone_number, file[0], file[1], file[2], file[3]))
