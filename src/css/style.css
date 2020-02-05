@@ -11,6 +11,10 @@ body {
   background-color: #ffffff;
 }
 
+.error-message {
+  text-align: center;
+}
+
 .container-fluid {
   height: 100%;
 }
