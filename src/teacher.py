@@ -35,7 +35,7 @@ if http_cookie_header:
         sid = cookie['sid'].value
         session_store = open('sess_' + sid, writeback=False)
         #if authenticated cookie redirect to homepage
-        if session_store.get('authenticated'):
+        if session_store['authenticated']:
             if len(form_data) != 0:
                 try:
                     student_id = escape(form_data.getfirst('student_id'))
@@ -61,8 +61,8 @@ if http_cookie_header:
 
                     cursor.close()
                     cursor = connection.cursor(db.cursors.DictCursor)
-                    
-                    cursor.execute("""SELECT * FROM homework 
+
+                    cursor.execute("""SELECT * FROM homework
                                     WHERE student_id = '%s'""" % (student_id))
                     # append all file submissions even if null
                     for row in cursor.fetchall():
@@ -77,9 +77,12 @@ if http_cookie_header:
                 except db.Error:
                     result = '<p>Sorry! We are experiencing problems at the moment. Please call back later.</p>'
 
-
         else:
             print('Location: login.py')
+    else:
+        print('Location: login.py')
+else:
+    print('Location: login.py')
 
 print('Content-Type: text/html')
 print()
@@ -148,6 +151,10 @@ print("""
                 <li>
                   <i class="far fa-calendar"></i>
                   <a class="#nav-link" href="#schedule">Schedule</a>
+                </li>
+                <li class="logout-button">
+                  <i class="fas fa-sign-out-alt"></i>
+                  <a class="#nav-link" href="./logout.py">Logout</a>
                 </li>
               </ul>
               </nav>
