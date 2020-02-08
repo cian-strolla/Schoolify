@@ -99,18 +99,18 @@ if http_cookie_header:
                                     WHERE class = '1'""")
                     for row in cursor.fetchall():
                         simple=row['first_name']
-                        print("####")
+                        #print("####")
                         student_id_to_name_dict[row['student_id']]=(row['first_name'], row['last_name'])
                         class_ids_list.append(1)
                     class_ids_list.append(2)
-                    print("DPOESEFMSDFNS")
+                    #print("DPOESEFMSDFNS")
                     cursor.close()
 
                     cursor = connection.cursor(db.cursors.DictCursor)
                     cursor.execute("""SELECT student_1_id, student_2_id, student_3_id FROM classes
                                     WHERE class=1  and class=1""")
-                    for row in cursor.fetchall():
-                        print('i')
+                    #for row in cursor.fetchall():
+                        #print('i')
                         #class_ids_list.append(row)
                     cursor.close()
 
@@ -133,10 +133,12 @@ if http_cookie_header:
         else:
             print('Location: login.py')
 
+
 print('Content-Type: text/html')
-print(class_ids_list)
-print(simple)
-print(student_id_to_name_dict)
+print()
+#print(class_ids_list)
+#print(simple)
+#print(student_id_to_name_dict)
 
 print("""
     <!DOCTYPE html>
