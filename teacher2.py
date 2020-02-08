@@ -287,4 +287,4 @@ print("""
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
       </body>
     </html>
-    """ % (student_id, student_firstname, student_lastname, teacher_name, (student_id_to_name_dict[class_ids_list[0]])[0], (student_id_to_name_dict[class_ids_list[0]])[0], address, eircode, student_phone_number, file[0], file[1], file[2], file[3]))
+    """ % (student_id, student_firstname, student_lastname, teacher_name, address, eircode, student_phone_number, file[0], file[1], file[2], file[3]))
