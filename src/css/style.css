@@ -11,6 +11,11 @@ body {
   background-color: #ffffff;
 }
 
+.logout-button {
+  position: fixed;
+  bottom: 0;
+}
+
 .error-message {
   text-align: center;
 }
@@ -112,4 +117,3 @@ td, th {
 table {
   margin-top: 1em;
 }
-
