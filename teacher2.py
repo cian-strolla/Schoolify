@@ -16,7 +16,9 @@ import datetime
 
 now = datetime.datetime.now()
 
+x=''
 i=0
+p=1
 result = ''
 student_firstname = ''
 student_lastname = ''
@@ -28,11 +30,12 @@ eircode = ''
 teacher_name=''
 file = ["","","",""]
 
-student_id_to_name_dict={112: 'sam'}
+student_id_to_name_dict={}
 attendance_list=[]
-class_ids_list=[112, 207, 248]
+class_ids_list=[]
 attendance_dict=dict()
 simple=''
+presence_dict=dict()
 
 cookie = SimpleCookie()
 http_cookie_header = environ.get('HTTP_COOKIE')
@@ -46,6 +49,42 @@ if http_cookie_header:
         session_store = open('sess_' + sid, writeback=False)
         #if authenticated cookie redirect to homepage
         if session_store.get('authenticated'):
+            try:
+                connection = db.connect('cs1.ucc.ie', 'rjf1', 'ahf1Aeho', '2021_rjf1')
+                cursor = connection.cursor(db.cursors.DictCursor)
+                cursor.execute("""SELECT * FROM students
+                                        WHERE class = '1'""")
+                for row in cursor.fetchall():
+                    student_id_to_name_dict[row['student_id']]=(row['first_name'] + " " + row['last_name'])
+
+                #print("DPOESEFMSDFNS")
+                cursor.close()
+
+                cursor = connection.cursor(db.cursors.DictCursor)
+                cursor.execute("""SELECT student_1, student_2 FROM attendance
+                                        WHERE date='2020-02-07' and class=1""") #% (now.strftime("%Y-%m-%d")))
+
+                for row in cursor.fetchall():
+                    x = row['student_1'].split()
+                    if [x[1]] == ['1']:
+                        x[1]='Present'
+                    elif [x[1]] == ['0']:
+                        x[1]='Absent'
+                    attendance_dict[x[0]]=x[1]
+                cursor.close()
+                cursor = connection.cursor(db.cursors.DictCursor)
+                cursor.execute("""SELECT * FROM students
+                                WHERE class=1""")
+                for row in cursor.fetchall():
+                    class_ids_list.append(row['student_id'])
+                cursor.close()
+
+
+
+
+            except db.Error:
+                result = '<p>Sorry! We are experiencing problems at the moment. Please call back later.</p>'
+
             if len(form_data) != 0:
                 try:
                     student_id = escape(form_data.getfirst('student_id'))
@@ -61,78 +100,36 @@ if http_cookie_header:
                         student_phone_number = row['phone_number']
                     #result += '</table>'
                     cursor.close()
-                    cursor = connection.cursor(db.cursors.DictCursor)
 
+                    cursor = connection.cursor(db.cursors.DictCursor)
                     cursor.execute("""SELECT * FROM addresses
                                     WHERE student_id = '%s'""" % (student_id))
                     for row in cursor.fetchall():
                         address = row['address']
                         eircode = row['eircode']
                     cursor.close()
-                    # cursor = connection.cursor(db.cursors.DictCursor)
 
-                    # cursor.execute("""SELECT * FROM homework
+                    cursor = connection.cursor(db.cursors.DictCursor)
+                    cursor.execute("""SELECT * FROM homework
                                     # WHERE student_id = '%s'""" % (student_id))
                     #append all file submissions even if null
-                    # for row in cursor.fetchall():
+                    for row in cursor.fetchall():
                         #only possible to submit 4 files now for simplicity
-                        # for i in range(1,5):
-                            # file[0] = row['file1']
-                            # file[1] = row['file2']
-                            # file[2] = row['file3']
-                            # file[3] = row['file4']
-
-
-
-
+                         for i in range(1,5):
+                            file[0] = row['file1']
+                            file[1] = row['file2']
+                            file[2] = row['file3']
+                            file[3] = row['file4']
                     connection.close()
+
                     cursor = connection.cursor(db.cursors.DictCursor)
                 except db.Error:
                     result = '<p>Sorry! We are experiencing problems at the moment. Please call back later.</p>'
             # no form data - landing
             # load dashboard data for that teacher
-            else:
-                try:
-                    connection = db.connect('cs1.ucc.ie', 'rjf1', 'ahf1Aeho', '2021_rjf1')
-                    cursor = connection.cursor(db.cursors.DictCursor)
-                    cursor.execute("""SELECT * FROM students
-                                    WHERE class = '1'""")
-                    for row in cursor.fetchall():
-                        simple=row['first_name']
-                        #print("####")
-                        student_id_to_name_dict[row['student_id']]=(row['first_name'], row['last_name'])
-                        class_ids_list.append(1)
-                    class_ids_list.append(2)
-                    #print("DPOESEFMSDFNS")
-                    cursor.close()
-
-                    cursor = connection.cursor(db.cursors.DictCursor)
-                    cursor.execute("""SELECT student_1_id, student_2_id, student_3_id FROM classes
-                                    WHERE class=1  and class=1""")
-                    #for row in cursor.fetchall():
-                        #print('i')
-                        #class_ids_list.append(row)
-                    cursor.close()
-
-                    cursor = connection.cursor(db.cursors.DictCursor)
-                    cursor.execute("""SELECT student1, student,2 student3 FROM attendance
-                                    WHERE date='%s' and class=1""" % (now.strftime("%Y-%m-%d")))
-
-                    for row in cursor.fetchall():
-                        if row=='1':
-                            row='present'
-                        elif row=='0':
-                            row='absent'
-                        attendance_dict[class_ids_list[i]] = row
-                        i+=1
-                    cursor.close()
-                except db.Error:
-                    result = '<p>Sorry! We are experiencing problems at the moment. Please call back later.</p>'
-
 
         else:
             print('Location: login.py')
-
 
 print('Content-Type: text/html')
 print()
@@ -151,8 +148,8 @@ print("""
         <!-- Bootstrap CSS -->
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
         <!-- Overriding CSS -->
-        <link rel="stylesheet" href="../css/style.css">
-        <link rel="icon" href="../assets/favicon.ico" type="image/x-icon">
+        <link rel="stylesheet" href="./css/style.css">
+        <link rel="icon" href="./assets/favicon.ico" type="image/x-icon">
 
         <!-- FontAwesome Icons -->
         <script src="https://kit.fontawesome.com/44c51e0d9c.js" crossorigin="anonymous"></script>
@@ -173,7 +170,7 @@ print("""
 
               <ul class="nav flex-column">
                 <li>
-                  <img src="../assets/just_logo_whiteBG.png" width="60px" height="60px">
+                  <img src="./assets/just_logo_whiteBG.png" width="60px" height="60px">
                   <a class="#nav-link" href="#schoolify">Schoolify</a>
                 </li>
                 <li>
@@ -226,8 +223,8 @@ print("""
                               <th>Attendance</th>
                             </tr>
                             <tr>
-                              <td></td>
-                              <td>her</td>
+                              <td>%s</td>
+                              <td>%s</td>
                             </tr>
                             <tr>
                               <td>David Jones</td>
@@ -289,4 +286,6 @@ print("""
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
       </body>
     </html>
-    """ % (student_id, student_firstname, student_lastname, teacher_name, address, eircode, student_phone_number, file[0], file[1], file[2], file[3]))
+    """ % (student_id, student_firstname, student_lastname, teacher_name, \
+    attendance_dict, x, \
+     address, eircode, student_phone_number, file[0], file[1], file[2], file[3]))
