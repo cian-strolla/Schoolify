@@ -100,16 +100,17 @@ if http_cookie_header:
                     cursor.close()
 
                     cursor = connection.cursor(db.cursors.DictCursor)
-                    cursor.execute("""SELECT student_1, student_2 FROM attendance
+                    cursor.execute("""SELECT * FROM attendance
                                             WHERE date='2020-02-07' and class=1""") #% (now.strftime("%Y-%m-%d")))
 
                     for row in cursor.fetchall():
-                        x = row['student_1'].split()
-                        if x[1] == '1':
-                            x[1]='Present'
-                        elif x[1] == '0':
-                            x[1]='Absent'
-                        attendance_dict[student_id_to_name_dict[x[0]]]=x[1]
+                        for student in ['student_1', 'student_2', 'student_3']:
+                            x = row[student].split()
+                            if x[1] == '1':
+                                x[1]='Present'
+                            elif x[1] == '0':
+                                x[1]='Absent'
+                            attendance_dict[student_id_to_name_dict[x[0]]]=x[1]
                     cursor.close()
                     cursor = connection.cursor(db.cursors.DictCursor)
                     cursor.execute("""SELECT * FROM students
@@ -231,16 +232,12 @@ print("""
                             <td>%s</td>
                           </tr>
                           <tr>
-                            <td>David Jones</td>
-                            <td>Absent</td>
+                            <td>%s</td>
+                            <td>%s</td>
                           </tr>
                           <tr>
-                            <td>Sally Johnson</td>
-                            <td>Present</td>
-                          </tr>
-                          <tr>
-                            <td>Michael Fitzpatrick</td>
-                            <td>Present</td>
+                            <td>%s</td>
+                            <td>%s</td>
                           </tr>
                       </table>
                 </div>
@@ -313,5 +310,7 @@ print("""
     </html>
     """ % (no_student_JSAlert, student_id, student_firstname, student_lastname,\
      list(attendance_dict.keys())[0], list(attendance_dict.values())[0],\
+     list(attendance_dict.keys())[1], list(attendance_dict.values())[1],\
+     list(attendance_dict.keys())[2], list(attendance_dict.values())[2],\
       address, eircode, student_phone_number,\
       file[0], file[1], file[2], file[3]))
