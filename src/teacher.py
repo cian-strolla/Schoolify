@@ -220,7 +220,7 @@ print("""
                       <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
                           <h1 class="h2">Dashboard</h1>
                       </div>
-                      <p>Welcome back </p>
+                      <p>Welcome back %s</p>
                       <h1>Attendance</h1>
                       <table>
                           <tr>
@@ -309,6 +309,7 @@ print("""
       </body>
     </html>
     """ % (no_student_JSAlert, student_id, student_firstname, student_lastname,\
+    session_store['name'], \
      list(attendance_dict.keys())[0], list(attendance_dict.values())[0],\
      list(attendance_dict.keys())[1], list(attendance_dict.values())[1],\
      list(attendance_dict.keys())[2], list(attendance_dict.values())[2],\
