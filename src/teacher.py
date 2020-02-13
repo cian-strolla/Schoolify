@@ -107,7 +107,11 @@ print("""
 
         <!-- FontAwesome Icons -->
         <script src="https://kit.fontawesome.com/44c51e0d9c.js" crossorigin="anonymous"></script>
-
+        <!-- Script to ensure dashboard is loaded on launch -->
+        <script type="text/javascript">
+            if (document.location.hash == "" || document.location.hash == "#")
+                document.location.hash = "#dashboard";
+        </script>
         <title>Schoolify</title>
       </head>
       <body>
@@ -172,6 +176,35 @@ print("""
               </nav>
               <!--Below are the hidden content sections for the student-->
               <div class="hidden-content">
+                <div id="dashboard">
+                      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+                          <h1 class="h2">Dashboard</h1>
+                      </div>
+                      <p>Welcome back </p>
+                      <h1>Attendance</h1>
+                      <table>
+                          <tr>
+                            <th>Student Name</th>
+                            <th>Attendance</th>
+                          </tr>
+                          <tr>
+                            <td></td>
+                            <td></td>
+                          </tr>
+                          <tr>
+                            <td>David Jones</td>
+                            <td>Absent</td>
+                          </tr>
+                          <tr>
+                            <td>Sally Johnson</td>
+                            <td>Present</td>
+                          </tr>
+                          <tr>
+                            <td>Michael Fitzpatrick</td>
+                            <td>Present</td>
+                          </tr>
+                      </table>
+                </div>
                 <div class="col-md-8" id="personal-info">
 
                     <strong>Address: </strong> %s
