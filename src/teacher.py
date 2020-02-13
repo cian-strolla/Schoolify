@@ -13,7 +13,7 @@ from os import environ
 from html import escape
 
 
-
+no_student_JSAlert=''
 result = ''
 student_firstname = ''
 student_lastname = ''
@@ -44,12 +44,16 @@ if http_cookie_header:
 
                     cursor.execute("""SELECT * FROM students
                                     WHERE student_id = '%s'""" % (student_id))
-                    for row in cursor.fetchall():
-                        #result+=row
-                        student_firstname = row['first_name']
-                        student_lastname = row['last_name']
-                        student_phone_number = row['phone_number']
-                    #result += '</table>'
+
+                    fetched = cursor.fetchall()
+                    if len(fetched)==0:
+                        no_student_JSAlert='alert("Student Doesn\'t Exist. Search for a Valid Student ID.");'
+                    else:
+                        for row in fetched:
+                            student_firstname = row['first_name']
+                            student_lastname = row['last_name']
+                            student_phone_number = row['phone_number']
+
                     cursor.close()
                     cursor = connection.cursor(db.cursors.DictCursor)
 
@@ -108,10 +112,18 @@ print("""
       </head>
       <body>
 
+        <script>
+            function myFunction() {
+                %s
+            }
+            myFunction()
+        </script>
+
         <!--<div class="current-student-container container"></div>-->
 
         <div class="view-options container-fluid">
           <div class="row">
+
             <nav class="sidebar col-md-2 d-none d-md-block">
 
 
@@ -227,4 +239,4 @@ print("""
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
       </body>
     </html>
-    """ % (student_id, student_firstname, student_lastname, address, eircode, student_phone_number, file[0], file[1], file[2], file[3]))
+    """ % (no_student_JSAlert, student_id, student_firstname, student_lastname, address, eircode, student_phone_number, file[0], file[1], file[2], file[3]))
