@@ -44,6 +44,39 @@ if http_cookie_header:
         session_store = open('sess_' + sid, writeback=False)
         #if authenticated cookie redirect to homepage
         if session_store['authenticated']:
+            try:
+                connection = db.connect('cs1.ucc.ie', 'rjf1', 'ahf1Aeho', '2021_rjf1')
+                cursor = connection.cursor(db.cursors.DictCursor)
+                cursor.execute("""SELECT * FROM students
+                                        WHERE class = '1'""")
+                for row in cursor.fetchall():
+                    student_id_to_name_dict[str(row['student_id'])]=row['first_name'] + " " + row['last_name']
+
+                cursor.close()
+
+                cursor = connection.cursor(db.cursors.DictCursor)
+                cursor.execute("""SELECT * FROM attendance
+                                        WHERE date='2020-02-07' and class=1""") #% (now.strftime("%Y-%m-%d")))
+
+                for row in cursor.fetchall():
+                    for student in ['student_1', 'student_2', 'student_3']:
+                        x = row[student].split()
+                        if x[1] == '1':
+                            x[1]='Present'
+                        elif x[1] == '0':
+                            x[1]='Absent'
+                        attendance_dict[student_id_to_name_dict[x[0]]]=x[1]
+                cursor.close()
+                cursor = connection.cursor(db.cursors.DictCursor)
+                cursor.execute("""SELECT * FROM students
+                                WHERE class=1""")
+                for row in cursor.fetchall():
+                    class_ids_list.append(row['student_id'])
+                cursor.close()
+
+            except db.Error:
+                result = '<p>Sorry! We are experiencing problems at the moment. Please call back later.</p>'
+                
             if len(form_data) != 0:
                 try:
                     student_id = escape(form_data.getfirst('student_id'))
@@ -88,39 +121,8 @@ if http_cookie_header:
                     connection.close()
                 except db.Error:
                     result = '<p>Sorry! We are experiencing problems at the moment. Please call back later.</p>'
-            else:
-                try:
-                    connection = db.connect('cs1.ucc.ie', 'rjf1', 'ahf1Aeho', '2021_rjf1')
-                    cursor = connection.cursor(db.cursors.DictCursor)
-                    cursor.execute("""SELECT * FROM students
-                                            WHERE class = '1'""")
-                    for row in cursor.fetchall():
-                        student_id_to_name_dict[str(row['student_id'])]=row['first_name'] + " " + row['last_name']
 
-                    cursor.close()
 
-                    cursor = connection.cursor(db.cursors.DictCursor)
-                    cursor.execute("""SELECT * FROM attendance
-                                            WHERE date='2020-02-07' and class=1""") #% (now.strftime("%Y-%m-%d")))
-
-                    for row in cursor.fetchall():
-                        for student in ['student_1', 'student_2', 'student_3']:
-                            x = row[student].split()
-                            if x[1] == '1':
-                                x[1]='Present'
-                            elif x[1] == '0':
-                                x[1]='Absent'
-                            attendance_dict[student_id_to_name_dict[x[0]]]=x[1]
-                    cursor.close()
-                    cursor = connection.cursor(db.cursors.DictCursor)
-                    cursor.execute("""SELECT * FROM students
-                                    WHERE class=1""")
-                    for row in cursor.fetchall():
-                        class_ids_list.append(row['student_id'])
-                    cursor.close()
-
-                except db.Error:
-                    result = '<p>Sorry! We are experiencing problems at the moment. Please call back later.</p>'
         else:
             print('Location: login.py')
     else:
