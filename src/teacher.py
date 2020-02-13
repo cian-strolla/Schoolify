@@ -23,6 +23,14 @@ student_id = ''
 address = ''
 eircode = ''
 file = ["","","",""]
+x=''
+
+student_id_to_name_dict={}
+attendance_list=[]
+class_ids_list=[]
+attendance_dict=dict()
+simple=''
+presence_dict=dict()
 
 cookie = SimpleCookie()
 http_cookie_header = environ.get('HTTP_COOKIE')
@@ -80,7 +88,38 @@ if http_cookie_header:
                     connection.close()
                 except db.Error:
                     result = '<p>Sorry! We are experiencing problems at the moment. Please call back later.</p>'
+            else:
+                try:
+                    connection = db.connect('cs1.ucc.ie', 'rjf1', 'ahf1Aeho', '2021_rjf1')
+                    cursor = connection.cursor(db.cursors.DictCursor)
+                    cursor.execute("""SELECT * FROM students
+                                            WHERE class = '1'""")
+                    for row in cursor.fetchall():
+                        student_id_to_name_dict[str(row['student_id'])]=row['first_name'] + " " + row['last_name']
 
+                    cursor.close()
+
+                    cursor = connection.cursor(db.cursors.DictCursor)
+                    cursor.execute("""SELECT student_1, student_2 FROM attendance
+                                            WHERE date='2020-02-07' and class=1""") #% (now.strftime("%Y-%m-%d")))
+
+                    for row in cursor.fetchall():
+                        x = row['student_1'].split()
+                        if x[1] == '1':
+                            x[1]='Present'
+                        elif x[1] == '0':
+                            x[1]='Absent'
+                        attendance_dict[student_id_to_name_dict[x[0]]]=x[1]
+                    cursor.close()
+                    cursor = connection.cursor(db.cursors.DictCursor)
+                    cursor.execute("""SELECT * FROM students
+                                    WHERE class=1""")
+                    for row in cursor.fetchall():
+                        class_ids_list.append(row['student_id'])
+                    cursor.close()
+
+                except db.Error:
+                    result = '<p>Sorry! We are experiencing problems at the moment. Please call back later.</p>'
         else:
             print('Location: login.py')
     else:
@@ -188,8 +227,8 @@ print("""
                             <th>Attendance</th>
                           </tr>
                           <tr>
-                            <td></td>
-                            <td></td>
+                            <td>%s</td>
+                            <td>%s</td>
                           </tr>
                           <tr>
                             <td>David Jones</td>
@@ -272,4 +311,7 @@ print("""
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
       </body>
     </html>
-    """ % (no_student_JSAlert, student_id, student_firstname, student_lastname, address, eircode, student_phone_number, file[0], file[1], file[2], file[3]))
+    """ % (no_student_JSAlert, student_id, student_firstname, student_lastname,\
+     list(attendance_dict.keys())[0], list(attendance_dict.values())[0],\
+      address, eircode, student_phone_number,\
+      file[0], file[1], file[2], file[3]))
