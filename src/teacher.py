@@ -89,8 +89,9 @@ if http_cookie_header:
                 try:
                     student_id = escape(form_data.getfirst('student_id'))
                     connection = db.connect('cs1.ucc.ie', 'rjf1', 'ahf1Aeho', '2021_rjf1')
-                    cursor = connection.cursor(db.cursors.DictCursor)
 
+                    # PERSONAL INFO
+                    cursor = connection.cursor(db.cursors.DictCursor)
                     cursor.execute("""SELECT * FROM students
                                     WHERE student_id = '%s'""" % (student_id))
 
@@ -102,32 +103,28 @@ if http_cookie_header:
                             student_firstname = row['first_name']
                             student_lastname = row['last_name']
                             student_phone_number = row['phone_number']
-
                     cursor.close()
-                    cursor = connection.cursor(db.cursors.DictCursor)
 
+                    cursor = connection.cursor(db.cursors.DictCursor)
                     cursor.execute("""SELECT * FROM addresses
                                     WHERE student_id = '%s'""" % (student_id))
                     for row in cursor.fetchall():
                         address = row['address']
                         eircode = row['eircode']
-
                     cursor.close()
 
+                    # POINTS
                     cursor = connection.cursor(db.cursors.DictCursor)
-
                     cursor.execute("""SELECT * FROM points
                                     WHERE student_id = '%s'""" % (student_id))
-                    # append all file submissions even if null
                     for row in cursor.fetchall():
                         weekly=row['weekly']
                         monthly=row['monthly']
                         yearly=row['yearly']
                     cursor.close()
-                    connection.close()
 
+                    # HOMEWORK
                     cursor = connection.cursor(db.cursors.DictCursor)
-
                     cursor.execute("""SELECT * FROM homework
                                     WHERE student_id = '%s'""" % (student_id))
                     # append all file submissions even if null
@@ -249,7 +246,7 @@ print("""
                               <h1 class="h2">Dashboard</h1>
                           </div>
                           <p>Welcome back %s</p>
-                          <h1>Attendance</h1>
+                          <h1>Class Attendance</h1>
                           <table>
                               <tr>
                                 <th>Student Name</th>
