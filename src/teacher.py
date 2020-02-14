@@ -19,7 +19,7 @@ result = ''
 student_firstname = ''
 student_lastname = ''
 student_phone_number=''
-
+teacher_name=''
 form_data = FieldStorage()
 student_id = ''
 address = ''
@@ -38,6 +38,7 @@ attendance_list=[]
 class_ids_list=[]
 daily_attendance_dict=dict()
 student_specific_attendance_dict={'select':'student', 'select':'student', 'select':'student'}
+daily_attendance_dict=student_specific_attendance_dict
 simple=''
 presence_dict=dict()
 
@@ -54,6 +55,7 @@ if http_cookie_header:
         #if authenticated cookie redirect to homepage
         if session_store['authenticated']:
             try:
+                teacher_name=session_store['name']
                 connection = db.connect('cs1.ucc.ie', 'rjf1', 'ahf1Aeho', '2021_rjf1')
                 cursor = connection.cursor(db.cursors.DictCursor)
                 cursor.execute("""SELECT * FROM students
@@ -270,10 +272,13 @@ print("""
                           <p>Welcome back %s</p>
                           <h1>Class Attendance</h1>
                           <table>
+                            <thead class="thead-dark">
                               <tr>
                                 <th>Student Name</th>
                                 <th>Attendance</th>
                               </tr>
+                            </thead>
+                            <tbody>
                               <tr>
                                 <td>%s</td>
                                 <td>%s</td>
@@ -286,6 +291,7 @@ print("""
                                 <td>%s</td>
                                 <td>%s</td>
                               </tr>
+
                           </table>
                     </div>
                     <div class="col-md-8" id="personal-info">
@@ -359,7 +365,7 @@ print("""
       </body>
     </html>
     """ % (no_student_JSAlert, student_id, student_firstname, student_lastname,\
-    session_store['name'], \
+    teacher_name, \
      list(daily_attendance_dict.keys())[0], list(daily_attendance_dict.values())[0],\
      list(daily_attendance_dict.keys())[1], list(daily_attendance_dict.values())[1],\
      list(daily_attendance_dict.keys())[2], list(daily_attendance_dict.values())[2],\
