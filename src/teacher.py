@@ -36,7 +36,8 @@ x=''
 student_id_to_name_dict={}
 attendance_list=[]
 class_ids_list=[]
-attendance_dict=dict()
+daily_attendance_dict=dict()
+student_specific_attendance_dict={'select':'student', 'select':'student', 'select':'student'}
 simple=''
 presence_dict=dict()
 
@@ -73,7 +74,7 @@ if http_cookie_header:
                             x[1]='Present'
                         elif x[1] == '0':
                             x[1]='Absent'
-                        attendance_dict[student_id_to_name_dict[x[0]]]=x[1]
+                        daily_attendance_dict[student_id_to_name_dict[x[0]]]=x[1]
                 cursor.close()
                 cursor = connection.cursor(db.cursors.DictCursor)
                 cursor.execute("""SELECT * FROM students
@@ -112,6 +113,27 @@ if http_cookie_header:
                         address = row['address']
                         eircode = row['eircode']
                     cursor.close()
+
+
+                    # ATTENDANCE
+                    cursor = connection.cursor(db.cursors.DictCursor)
+                    cursor.execute("""SELECT * FROM attendance
+                                    WHERE class=1 and date between '2020-02-05' and '2020-02-07'""")
+                    for row in cursor.fetchall():
+                        for student in ['student_1', 'student_2', 'student_3']:
+                            x = row[student].split()
+                            if x[0] == student_id:
+                                if x[1] == '1':
+                                    x[1]='Present'
+                                elif x[1] == '0':
+                                    x[1]='Absent'
+                                student_specific_attendance_dict[row['date']]=x[1]
+
+
+                            #daily_attendance_dict[student_id_to_name_dict[x[0]]]=x[1]
+
+                    cursor.close()
+
 
                     # POINTS
                     cursor = connection.cursor(db.cursors.DictCursor)
@@ -276,28 +298,25 @@ print("""
                         <p>Test2</p>
                     </div>
                     <div id="attendance">
-                      <h1>Attendance</h1>
+                      <h1>Attendance for %s %s</h1>
                       <table>
                           <tr>
-                            <th>Student Name</th>
+                            <th>Date</th>
                             <th>Attendance</th>
                           </tr>
                           <tr>
-                            <td>John Smith</td>
-                            <td>Present</td>
+                            <td>%s</td>
+                            <td>%s</td>
                           </tr>
                           <tr>
-                            <td>David Jones</td>
-                            <td>Absent</td>
+                            <td>%s</td>
+                            <td>%s</td>
                           </tr>
                           <tr>
-                            <td>Sally Johnson</td>
-                            <td>Present</td>
+                            <td>%s</td>
+                            <td>%s</td>
                           </tr>
-                          <tr>
-                            <td>Michael Fitzpatrick</td>
-                            <td>Present</td>
-                          </tr>
+
                       </table>
                     </div>
                     <div id="points">
@@ -341,9 +360,13 @@ print("""
     </html>
     """ % (no_student_JSAlert, student_id, student_firstname, student_lastname,\
     session_store['name'], \
-     list(attendance_dict.keys())[0], list(attendance_dict.values())[0],\
-     list(attendance_dict.keys())[1], list(attendance_dict.values())[1],\
-     list(attendance_dict.keys())[2], list(attendance_dict.values())[2],\
+     list(daily_attendance_dict.keys())[0], list(daily_attendance_dict.values())[0],\
+     list(daily_attendance_dict.keys())[1], list(daily_attendance_dict.values())[1],\
+     list(daily_attendance_dict.keys())[2], list(daily_attendance_dict.values())[2],\
       address, eircode, student_phone_number,\
+      student_firstname, student_lastname, \
+      list(student_specific_attendance_dict.keys())[0], list(student_specific_attendance_dict.values())[0],\
+      list(student_specific_attendance_dict.keys())[1], list(student_specific_attendance_dict.values())[1],\
+      list(student_specific_attendance_dict.keys())[2], list(student_specific_attendance_dict.values())[2],\
       weekly, monthly, yearly, \
       file[0], file[1], file[2], file[3]))
