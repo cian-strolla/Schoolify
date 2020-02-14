@@ -114,6 +114,7 @@ td, th {
   padding: 8px;
 }
 
-table {
-  margin-top: 1em;
+.attendance-table {
+  margin-left: 1em;
+  margin-left: 5em;
 }

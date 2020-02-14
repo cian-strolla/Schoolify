@@ -37,7 +37,7 @@ student_id_to_name_dict={}
 attendance_list=[]
 class_ids_list=[]
 daily_attendance_dict=dict()
-student_specific_attendance_dict={'select':'student', 'select':'student', 'select':'student'}
+student_specific_attendance_dict={'':'', '':'', '':''}
 daily_attendance_dict=student_specific_attendance_dict
 simple=''
 presence_dict=dict()
@@ -271,23 +271,27 @@ print("""
                           </div>
                           <p>Welcome back %s</p>
                           <h1>Class Attendance</h1>
-                          <table>
+                          <table class="table table-hover attendance-table">
                             <thead class="thead-dark">
                               <tr>
-                                <th>Student Name</th>
-                                <th>Attendance</th>
+                                <th scope="col">#</th>
+                                <th scope="col">Student Name</th>
+                                <th scope="col">Attendance</th>
                               </tr>
                             </thead>
                             <tbody>
                               <tr>
+                                <th scope="row">1</th>
                                 <td>%s</td>
                                 <td>%s</td>
                               </tr>
                               <tr>
+                                <th scope="row">2</th>
                                 <td>%s</td>
                                 <td>%s</td>
                               </tr>
                               <tr>
+                                <th scope="row">3</th>
                                 <td>%s</td>
                                 <td>%s</td>
                               </tr>
