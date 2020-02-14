@@ -193,7 +193,6 @@ print("""
 
             <nav class="sidebar col-md-2 d-none d-md-block">
 
-
               <ul class="nav flex-column">
                 <li>
                   <img src="./assets/just_logo_whiteBG.png" width="60px" height="60px">
@@ -241,13 +240,45 @@ print("""
                 </li>
               </ul>
               </nav>
-              <!--Below are the hidden content sections for the student-->
-              <div class="hidden-content">
-                <div id="dashboard">
-                      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-                          <h1 class="h2">Dashboard</h1>
-                      </div>
-                      <p>Welcome back %s</p>
+              <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+
+                  <!--Below are the hidden content sections for the student-->
+                  <div class="hidden-content">
+                    <div id="dashboard">
+                          <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+                              <h1 class="h2">Dashboard</h1>
+                          </div>
+                          <p>Welcome back %s</p>
+                          <h1>Attendance</h1>
+                          <table>
+                              <tr>
+                                <th>Student Name</th>
+                                <th>Attendance</th>
+                              </tr>
+                              <tr>
+                                <td>%s</td>
+                                <td>%s</td>
+                              </tr>
+                              <tr>
+                                <td>%s</td>
+                                <td>%s</td>
+                              </tr>
+                              <tr>
+                                <td>%s</td>
+                                <td>%s</td>
+                              </tr>
+                          </table>
+                    </div>
+                    <div class="col-md-8" id="personal-info">
+
+                        <strong>Address: </strong> %s
+                        <strong>Eircode: </strong> %s
+                        <strong>Phone Number: </strong> %s
+                    </div>
+                    <div id="term-reports">
+                        <p>Test2</p>
+                    </div>
+                    <div id="attendance">
                       <h1>Attendance</h1>
                       <table>
                           <tr>
@@ -255,83 +286,54 @@ print("""
                             <th>Attendance</th>
                           </tr>
                           <tr>
-                            <td>%s</td>
-                            <td>%s</td>
+                            <td>John Smith</td>
+                            <td>Present</td>
                           </tr>
                           <tr>
-                            <td>%s</td>
-                            <td>%s</td>
+                            <td>David Jones</td>
+                            <td>Absent</td>
                           </tr>
                           <tr>
-                            <td>%s</td>
-                            <td>%s</td>
+                            <td>Sally Johnson</td>
+                            <td>Present</td>
+                          </tr>
+                          <tr>
+                            <td>Michael Fitzpatrick</td>
+                            <td>Present</td>
                           </tr>
                       </table>
-                </div>
-                <div class="col-md-8" id="personal-info">
-
-                    <strong>Address: </strong> %s
-                    <strong>Eircode: </strong> %s
-                    <strong>Phone Number: </strong> %s
-                </div>
-                <div id="term-reports">
-                    <p>Test2</p>
-                </div>
-                <div id="attendance">
-                  <h1>Attendance</h1>
-                  <table>
-                      <tr>
-                        <th>Student Name</th>
-                        <th>Attendance</th>
-                      </tr>
-                      <tr>
-                        <td>John Smith</td>
-                        <td>Present</td>
-                      </tr>
-                      <tr>
-                        <td>David Jones</td>
-                        <td>Absent</td>
-                      </tr>
-                      <tr>
-                        <td>Sally Johnson</td>
-                        <td>Present</td>
-                      </tr>
-                      <tr>
-                        <td>Michael Fitzpatrick</td>
-                        <td>Present</td>
-                      </tr>
-                  </table>
-                </div>
-                <div id="points">
-                    <p>Weekly: %s</p>
-                    <p>Monthly: %s</p>
-                    <p>Yearly: %s</p>
-                </div>
-                <div id="homework">
-						<h1>Homework</h1>
-					<table>
-						<tr>
-							<th>Week</th>
-							<th>Submission</th>
-						</tr>
-						<tr>
-							<td>Week1</td>
-							<td>%s</td>
-						</tr>
-						<tr>
-							<td>Week2</td>
-							<td>%s</td>
-						</tr>
-						<tr>
-							<td>Week3</td>
-							<td>%s</td>
-						</tr>
-						<tr>
-							<td>Week4</td>
-							<td>%s</td>
-						</tr>
-					</table>
-              </div>
+                    </div>
+                    <div id="points">
+                        <p>Weekly: %s</p>
+                        <p>Monthly: %s</p>
+                        <p>Yearly: %s</p>
+                    </div>
+                    <div id="homework">
+    						<h1>Homework</h1>
+    					<table>
+    						<tr>
+    							<th>Week</th>
+    							<th>Submission</th>
+    						</tr>
+    						<tr>
+    							<td>Week1</td>
+    							<td>%s</td>
+    						</tr>
+    						<tr>
+    							<td>Week2</td>
+    							<td>%s</td>
+    						</tr>
+    						<tr>
+    							<td>Week3</td>
+    							<td>%s</td>
+    						</tr>
+    						<tr>
+    							<td>Week4</td>
+    							<td>%s</td>
+    						</tr>
+    					</table>
+                  </div>
+                  </main>
             </div>
           </div>
 
