@@ -54,117 +54,118 @@ if http_cookie_header:
         session_store = open('sess_' + sid, writeback=False)
         #if authenticated cookie redirect to homepage
         if session_store['authenticated']:
-            try:
-                teacher_name=session_store['name']
-                connection = db.connect('cs1.ucc.ie', 'rjf1', 'ahf1Aeho', '2021_rjf1')
-                cursor = connection.cursor(db.cursors.DictCursor)
-                cursor.execute("""SELECT * FROM students
-                                        WHERE class = '1'""")
-                for row in cursor.fetchall():
-                    student_id_to_name_dict[str(row['student_id'])]=row['first_name'] + " " + row['last_name']
-
-                cursor.close()
-
-                cursor = connection.cursor(db.cursors.DictCursor)
-                cursor.execute("""SELECT * FROM attendance
-                                        WHERE date='2020-02-07' and class=1""") #% (now.strftime("%Y-%m-%d")))
-
-                for row in cursor.fetchall():
-                    for student in ['student_1', 'student_2', 'student_3']:
-                        x = row[student].split()
-                        if x[1] == '1':
-                            x[1]='Present'
-                        elif x[1] == '0':
-                            x[1]='Absent'
-                        daily_attendance_dict[student_id_to_name_dict[x[0]]]=x[1]
-                cursor.close()
-                cursor = connection.cursor(db.cursors.DictCursor)
-                cursor.execute("""SELECT * FROM students
-                                WHERE class=1""")
-                for row in cursor.fetchall():
-                    class_ids_list.append(row['student_id'])
-                cursor.close()
-
-            except db.Error:
-                result = '<p>Sorry! We are experiencing problems at the moment. Please call back later.</p>'
-
-            if len(form_data) != 0:
+            if session_store['account_type'] == "2":
                 try:
-                    student_id = escape(form_data.getfirst('student_id'))
+                    teacher_name=session_store['name']
                     connection = db.connect('cs1.ucc.ie', 'rjf1', 'ahf1Aeho', '2021_rjf1')
-
-                    # PERSONAL INFO
                     cursor = connection.cursor(db.cursors.DictCursor)
                     cursor.execute("""SELECT * FROM students
-                                    WHERE student_id = '%s'""" % (student_id))
-
-                    fetched = cursor.fetchall()
-                    if len(fetched)==0:
-                        no_student_JSAlert='alert("Student Doesn\'t Exist. Search for a Valid Student ID.");'
-                    else:
-                        for row in fetched:
-                            student_firstname = row['first_name']
-                            student_lastname = row['last_name']
-                            student_phone_number = row['phone_number']
-                    cursor.close()
-
-                    cursor = connection.cursor(db.cursors.DictCursor)
-                    cursor.execute("""SELECT * FROM addresses
-                                    WHERE student_id = '%s'""" % (student_id))
+                                            WHERE class = '1'""")
                     for row in cursor.fetchall():
-                        address = row['address']
-                        eircode = row['eircode']
+                        student_id_to_name_dict[str(row['student_id'])]=row['first_name'] + " " + row['last_name']
+
                     cursor.close()
 
-
-                    # ATTENDANCE
                     cursor = connection.cursor(db.cursors.DictCursor)
                     cursor.execute("""SELECT * FROM attendance
-                                    WHERE class=1 and date between '2020-02-05' and '2020-02-07'""")
+                                            WHERE date='2020-02-07' and class=1""") #% (now.strftime("%Y-%m-%d")))
+
                     for row in cursor.fetchall():
                         for student in ['student_1', 'student_2', 'student_3']:
                             x = row[student].split()
-                            if x[0] == student_id:
-                                if x[1] == '1':
-                                    x[1]='Present'
-                                elif x[1] == '0':
-                                    x[1]='Absent'
-                                student_specific_attendance_dict[row['date']]=x[1]
-
-
-                            #daily_attendance_dict[student_id_to_name_dict[x[0]]]=x[1]
-
+                            if x[1] == '1':
+                                x[1]='Present'
+                            elif x[1] == '0':
+                                x[1]='Absent'
+                            daily_attendance_dict[student_id_to_name_dict[x[0]]]=x[1]
                     cursor.close()
-
-
-                    # POINTS
                     cursor = connection.cursor(db.cursors.DictCursor)
-                    cursor.execute("""SELECT * FROM points
-                                    WHERE student_id = '%s'""" % (student_id))
+                    cursor.execute("""SELECT * FROM students
+                                    WHERE class=1""")
                     for row in cursor.fetchall():
-                        weekly=row['weekly']
-                        monthly=row['monthly']
-                        yearly=row['yearly']
+                        class_ids_list.append(row['student_id'])
                     cursor.close()
 
-                    # HOMEWORK
-                    cursor = connection.cursor(db.cursors.DictCursor)
-                    cursor.execute("""SELECT * FROM homework
-                                    WHERE student_id = '%s'""" % (student_id))
-                    # append all file submissions even if null
-                    for row in cursor.fetchall():
-                        #only possible to submit 4 files now for simplicity
-                        for i in range(1,5):
-                            file[0] = row['file1']
-                            file[1] = row['file2']
-                            file[2] = row['file3']
-                            file[3] = row['file4']
-                    cursor.close()
-                    connection.close()
                 except db.Error:
                     result = '<p>Sorry! We are experiencing problems at the moment. Please call back later.</p>'
 
+                if len(form_data) != 0:
+                    try:
+                        student_id = escape(form_data.getfirst('student_id'))
+                        connection = db.connect('cs1.ucc.ie', 'rjf1', 'ahf1Aeho', '2021_rjf1')
 
+                        # PERSONAL INFO
+                        cursor = connection.cursor(db.cursors.DictCursor)
+                        cursor.execute("""SELECT * FROM students
+                                        WHERE student_id = '%s'""" % (student_id))
+
+                        fetched = cursor.fetchall()
+                        if len(fetched)==0:
+                            no_student_JSAlert='alert("Student Doesn\'t Exist. Search for a Valid Student ID.");'
+                        else:
+                            for row in fetched:
+                                student_firstname = row['first_name']
+                                student_lastname = row['last_name']
+                                student_phone_number = row['phone_number']
+                        cursor.close()
+
+                        cursor = connection.cursor(db.cursors.DictCursor)
+                        cursor.execute("""SELECT * FROM addresses
+                                        WHERE student_id = '%s'""" % (student_id))
+                        for row in cursor.fetchall():
+                            address = row['address']
+                            eircode = row['eircode']
+                        cursor.close()
+
+
+                        # ATTENDANCE
+                        cursor = connection.cursor(db.cursors.DictCursor)
+                        cursor.execute("""SELECT * FROM attendance
+                                        WHERE class=1 and date between '2020-02-05' and '2020-02-07'""")
+                        for row in cursor.fetchall():
+                            for student in ['student_1', 'student_2', 'student_3']:
+                                x = row[student].split()
+                                if x[0] == student_id:
+                                    if x[1] == '1':
+                                        x[1]='Present'
+                                    elif x[1] == '0':
+                                        x[1]='Absent'
+                                    student_specific_attendance_dict[row['date']]=x[1]
+
+
+                                #daily_attendance_dict[student_id_to_name_dict[x[0]]]=x[1]
+
+                        cursor.close()
+
+
+                        # POINTS
+                        cursor = connection.cursor(db.cursors.DictCursor)
+                        cursor.execute("""SELECT * FROM points
+                                        WHERE student_id = '%s'""" % (student_id))
+                        for row in cursor.fetchall():
+                            weekly=row['weekly']
+                            monthly=row['monthly']
+                            yearly=row['yearly']
+                        cursor.close()
+
+                        # HOMEWORK
+                        cursor = connection.cursor(db.cursors.DictCursor)
+                        cursor.execute("""SELECT * FROM homework
+                                        WHERE student_id = '%s'""" % (student_id))
+                        # append all file submissions even if null
+                        for row in cursor.fetchall():
+                            #only possible to submit 4 files now for simplicity
+                            for i in range(1,5):
+                                file[0] = row['file1']
+                                file[1] = row['file2']
+                                file[2] = row['file3']
+                                file[3] = row['file4']
+                        cursor.close()
+                        connection.close()
+                    except db.Error:
+                        result = '<p>Sorry! We are experiencing problems at the moment. Please call back later.</p>'
+            else:
+                print('Location:login.py')
         else:
             print('Location: login.py')
     else:

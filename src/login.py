@@ -51,14 +51,8 @@ if email != '':
     search_result = cursor.execute("""SELECT * FROM users WHERE email = %s AND password = %s""" , (email, password))
     fetched = cursor.fetchone()
     name= fetched['first_name'] + ' ' + fetched['last_name']
-    account_type_check = cursor.execute("""SELECT account_type FROM users WHERE email = %s AND password = %s""" , (email, password))
-    account_type = cursor.fetchone()
-    account_type = account_type['account_type']
-    account_type = str(account_type)
-    id_check = cursor.execute("""SELECT id FROM users WHERE email = %s AND password = %s""" , (email, password))
-    id = cursor.fetchone()
-    id = id['id']
-    id = str(id)
+    id=fetched['id']
+    account_type = fetched['account_type']
 
     #user found and password match, issue cookie and redirect to homepage
     if search_result == 1:
@@ -75,9 +69,9 @@ if email != '':
         cursor.close()
         connection.close()
         print(cookie)
-        if account_type == "1":
+        if account_type == 1:
             print('Location: parent.py')
-        elif account_type == "2":
+        elif account_type == 2:
             print('Location: teacher.py')
         else:
             print('Location: student.py')
@@ -118,9 +112,9 @@ else:
             session_store = open('sess_' + sid, writeback=False)
             #if authenticated cookie redirect to homepage
             if session_store.get('authenticated'):
-                if session_store['account_type'] == "1":
+                if session_store['account_type'] == 1:
                     print('Location: parent.py')
-                elif session_store['account_type'] == "2":
+                elif session_store['account_type'] == 2:
                     print('Location: teacher.py')
                 else:
                     print('Location: student.py')
