@@ -51,6 +51,10 @@ if email != '':
     search_result = cursor.execute("""SELECT * FROM users WHERE email = %s AND password = %s""" , (email, password))
     fetched = cursor.fetchone()
     name= fetched['first_name'] + ' ' + fetched['last_name']
+    account_type_check = cursor.execute("""SELECT account_type FROM users WHERE email = %s AND password = %s""" , (email, password))
+    account_type = cursor.fetchone()
+    account_type = account_type['account_type']
+    account_type = str(account_type)
 
     #user found and password match, issue cookie and redirect to homepage
     if search_result == 1:
@@ -61,11 +65,17 @@ if email != '':
         session_store['authenticated'] = True
         session_store['username'] = email
         session_store['name'] = name
+        session_store['account_type'] = account_type
         session_store.close()
         cursor.close()
         connection.close()
         print(cookie)
-        print('Location: teacher.py')
+        if account_type == "1":
+            print('Location: parent.py')
+        elif account_type == "2":
+            print('Location: teacher.py')
+        else:
+            print('Location: student.py')
     # incorrect username or password
     else:
         result="""<body>
@@ -103,7 +113,12 @@ else:
             session_store = open('sess_' + sid, writeback=False)
             #if authenticated cookie redirect to homepage
             if session_store.get('authenticated'):
-                print('Location: teacher.py')
+                if session_store['account_type'] == "1":
+                    print('Location: parent.py')
+                elif session_store['account_type'] == "2":
+                    print('Location: teacher.py')
+                else:
+                    print('Location: student.py')
             #else unauthenticated cookie, display login/signup
             else:
                 result=base_page
