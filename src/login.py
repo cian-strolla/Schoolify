@@ -55,6 +55,10 @@ if email != '':
     account_type = cursor.fetchone()
     account_type = account_type['account_type']
     account_type = str(account_type)
+    id_check = cursor.execute("""SELECT id FROM users WHERE email = %s AND password = %s""" , (email, password))
+    id = cursor.fetchone()
+    id = id['id']
+    id = str(id)
 
     #user found and password match, issue cookie and redirect to homepage
     if search_result == 1:
@@ -66,6 +70,7 @@ if email != '':
         session_store['username'] = email
         session_store['name'] = name
         session_store['account_type'] = account_type
+        session_store['id'] = id
         session_store.close()
         cursor.close()
         connection.close()
