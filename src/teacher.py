@@ -56,7 +56,8 @@ if http_cookie_header:
         if session_store['authenticated']:
             if session_store['account_type'] == "2":
                 try:
-                    teacher_name=session_store['name']
+                    teacher_name = session_store['name']
+                    teacher_email = session_store['email']
                     connection = db.connect('cs1.ucc.ie', 'rjf1', 'ahf1Aeho', '2021_rjf1')
                     cursor = connection.cursor(db.cursors.DictCursor)
                     cursor.execute("""SELECT * FROM students
@@ -121,7 +122,8 @@ if http_cookie_header:
                         # ATTENDANCE
                         cursor = connection.cursor(db.cursors.DictCursor)
                         cursor.execute("""SELECT * FROM attendance
-                                        WHERE class=1 and date between '2020-02-05' and '2020-02-07'""")
+                                        WHERE date between '2020-02-05' and '2020-02-07' and
+                                        class = (SELECT class FROM teachers WHERE email = %s)""", (teacher_email))
                         for row in cursor.fetchall():
                             for student in ['student_1', 'student_2', 'student_3']:
                                 x = row[student].split()
