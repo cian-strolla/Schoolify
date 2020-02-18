@@ -56,8 +56,7 @@ if http_cookie_header:
         if session_store['authenticated']:
             if session_store['account_type'] == "2":
                 try:
-                    teacher_name = session_store['name']
-                    teacher_email = session_store['email']
+                    teacher_name=session_store['name']
                     connection = db.connect('cs1.ucc.ie', 'rjf1', 'ahf1Aeho', '2021_rjf1')
                     cursor = connection.cursor(db.cursors.DictCursor)
                     cursor.execute("""SELECT * FROM students
@@ -122,8 +121,7 @@ if http_cookie_header:
                         # ATTENDANCE
                         cursor = connection.cursor(db.cursors.DictCursor)
                         cursor.execute("""SELECT * FROM attendance
-                                        WHERE date between '2020-02-05' and '2020-02-07' and
-                                        class = (SELECT class FROM teachers WHERE email = %s)""", (teacher_email))
+                                        WHERE class=1 and date between '2020-02-05' and '2020-02-07'""")
                         for row in cursor.fetchall():
                             for student in ['student_1', 'student_2', 'student_3']:
                                 x = row[student].split()
@@ -191,6 +189,8 @@ print("""
         <!-- Overriding CSS -->
         <link rel="stylesheet" href="./css/style.css">
         <link rel="icon" href="./assets/favicon.ico" type="image/x-icon">
+        <link href='fullcalendar/core/main.css' rel='stylesheet' />
+        <link href='fullcalendar/daygrid/main.css' rel='stylesheet' />
 
         <!-- FontAwesome Icons -->
         <script src="https://kit.fontawesome.com/44c51e0d9c.js" crossorigin="anonymous"></script>
@@ -199,6 +199,25 @@ print("""
             if (document.location.hash == "" || document.location.hash == "#")
                 document.location.hash = "#dashboard";
         </script>
+
+        <script src='fullcalendar/core/main.js'></script>
+        <script src='fullcalendar/daygrid/main.js'></script>
+
+        <script>
+
+          document.addEventListener('DOMContentLoaded', function() {
+            var calendarEl = document.getElementById('calendar');
+
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+              plugins: [ 'dayGrid' ]
+            });
+
+            calendar.render();
+          });
+
+        </script>
+
+
         <title>Schoolify</title>
       </head>
       <body>
@@ -361,8 +380,13 @@ print("""
     							<td>%s</td>
     						</tr>
     					</table>
-                  </div>
-                  </main>
+                    </div>
+                    <div id="schedule">
+                        <h1>Schedule</h1>
+                        <div id='calendar'></div>
+                    </div>
+                </div>
+              </main>
             </div>
           </div>
 

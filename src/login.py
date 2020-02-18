@@ -63,7 +63,7 @@ if email != '':
         session_store['authenticated'] = True
         session_store['username'] = email
         session_store['name'] = name
-        session_store['account_type'] = account_type
+        session_store['account_type'] = str(account_type)
         session_store['id'] = id
         session_store.close()
         cursor.close()

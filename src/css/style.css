@@ -86,7 +86,7 @@ body {
 .nav a{
   color: white;
 }
-.hidden-content div{
+.hidden-content>div{
   display: none;
 }
 .hidden-content div:target{
