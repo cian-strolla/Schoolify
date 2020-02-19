@@ -31,6 +31,11 @@ weekly=''
 monthly=''
 yearly=''
 x=''
+# SCHEDULE
+current_class = ''
+events_table = ''
+event_date = ''
+event_description = ''
 
 
 student_id_to_name_dict={}
@@ -84,6 +89,21 @@ if http_cookie_header:
                                     WHERE class=1""")
                     for row in cursor.fetchall():
                         class_ids_list.append(row['student_id'])
+
+                    # SCHEDULE
+                    current_class = session_store['class']
+                    current_class = int(current_class)
+                    cursor = connection.cursor(db.cursors.DictCursor)
+                    cursor.execute("""SELECT * FROM calendar WHERE class = %s""" % (current_class))
+
+                    for row in cursor.fetchall():
+                        event_date = row['event_date']
+                        event_description = row['event_description']
+                        events_table += "<tr>"
+                        events_table += "<td>" + event_date + "</td>"
+                        events_table += "<td>" + event_description + "</td>"
+                        events_table += "</tr>"
+                    cursor.close()
                     cursor.close()
 
                 except db.Error:
@@ -162,6 +182,7 @@ if http_cookie_header:
                                 file[3] = row['file4']
                         cursor.close()
                         connection.close()
+
                     except db.Error:
                         result = '<p>Sorry! We are experiencing problems at the moment. Please call back later.</p>'
             else:
@@ -384,6 +405,22 @@ print("""
                     <div id="schedule">
                         <h1>Schedule</h1>
                         <div id='calendar'></div>
+                        <div id="events-schedule">
+                            <table class="table table-hover events-table">
+                              <thead class="thead-dark">
+                                <tr>
+                                  <th class="date" scope="col">Date</th>
+                                  <th class="event" scope="col">Event</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr>
+                                  <th scope="row">19-02-20</th>
+                                  <td>Test</td>
+                                </tr>
+                                %s
+                            </table>
+                        </div>
                     </div>
                 </div>
               </main>
@@ -406,4 +443,4 @@ print("""
       list(student_specific_attendance_dict.keys())[1], list(student_specific_attendance_dict.values())[1],\
       list(student_specific_attendance_dict.keys())[2], list(student_specific_attendance_dict.values())[2],\
       weekly, monthly, yearly, \
-      file[0], file[1], file[2], file[3]))
+      file[0], file[1], file[2], file[3], events_table))

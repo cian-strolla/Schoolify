@@ -78,6 +78,7 @@ body {
   background-color: #581D59;
 }
 .nav li {
+    font-size: 1.5rem;
     padding: .5rem;
     color: white;
     background-color: #581D59;
@@ -99,6 +100,11 @@ body {
   font-size: 1.35rem;
   text-align: center;
 }
+
+#title{
+  font-size: 2rem;
+}
+
 #attendance , #homework{
   margin-left: 2em;
   margin-top: 2em;
@@ -117,4 +123,26 @@ td, th {
 .attendance-table {
   margin-left: 1em;
   margin-left: 5em;
+}
+
+#calendar-container {
+  position: relative;
+  z-index: 1;
+}
+
+#calendar {
+  max-width: 900px;
+  margin: 20px;
+}
+
+.events-table .date {
+  width:30%;
+}
+
+.events-table .event {
+  width:70%;
+}
+
+.fc-scroller {
+  height:100% !important;
 }

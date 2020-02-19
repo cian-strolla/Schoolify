@@ -53,6 +53,7 @@ if email != '':
     name= fetched['first_name'] + ' ' + fetched['last_name']
     id=fetched['id']
     account_type = fetched['account_type']
+    current_class = str(fetched['class'])
 
     #user found and password match, issue cookie and redirect to homepage
     if search_result == 1:
@@ -65,6 +66,7 @@ if email != '':
         session_store['name'] = name
         session_store['account_type'] = str(account_type)
         session_store['id'] = id
+        session_store['class'] = current_class
         session_store.close()
         cursor.close()
         connection.close()
