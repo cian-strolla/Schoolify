@@ -133,6 +133,15 @@ td, th {
 #calendar {
   max-width: 900px;
   margin: 20px;
+  width:70%;
+  display:inline-block;
+  float:left;
+}
+.event-input {
+  display: inline-block;
+  width: 30%;
+  float:right;
+  margin-right: 4em;
 }
 
 .events-table .date {

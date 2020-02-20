@@ -36,6 +36,8 @@ current_class = ''
 events_table = ''
 event_date = ''
 event_description = ''
+event_date_input = ''
+event_descrition_input = ''
 
 
 student_id_to_name_dict={}
@@ -103,6 +105,7 @@ if http_cookie_header:
                         events_table += "<td>" + event_date + "</td>"
                         events_table += "<td>" + event_description + "</td>"
                         events_table += "</tr>"
+                    connection.commit()
                     cursor.close()
                     cursor.close()
 
@@ -111,77 +114,99 @@ if http_cookie_header:
 
                 if len(form_data) != 0:
                     try:
-                        student_id = escape(form_data.getfirst('student_id'))
+                        # check which input fields contain data
+                        try:
+                            student_id = escape(form_data.getfirst('student_id'))
+                        except:
+                            student_id = ''
+                        try:
+                            event_date_input = escape(form_data.getfirst('event-date-input'))
+                        except:
+                            event_date_input = ''
+                        try:
+                            event_descrition_input = escape(form_data.getfirst('event-description-input'))
+                        except:
+                            event_descrition_input = ''
+
                         connection = db.connect('cs1.ucc.ie', 'rjf1', 'ahf1Aeho', '2021_rjf1')
 
-                        # PERSONAL INFO
-                        cursor = connection.cursor(db.cursors.DictCursor)
-                        cursor.execute("""SELECT * FROM students
-                                        WHERE student_id = '%s'""" % (student_id))
+                        if student_id != '':
+                            # PERSONAL INFO
+                            cursor = connection.cursor(db.cursors.DictCursor)
+                            cursor.execute("""SELECT * FROM students
+                                            WHERE student_id = '%s'""" % (student_id))
 
-                        fetched = cursor.fetchall()
-                        if len(fetched)==0:
-                            no_student_JSAlert='alert("Student Doesn\'t Exist. Search for a Valid Student ID.");'
-                        else:
-                            for row in fetched:
-                                student_firstname = row['first_name']
-                                student_lastname = row['last_name']
-                                student_phone_number = row['phone_number']
-                        cursor.close()
+                            fetched = cursor.fetchall()
+                            if len(fetched)==0:
+                                no_student_JSAlert='alert("Student Doesn\'t Exist. Search for a Valid Student ID.");'
+                            else:
+                                for row in fetched:
+                                    student_firstname = row['first_name']
+                                    student_lastname = row['last_name']
+                                    student_phone_number = row['phone_number']
+                            cursor.close()
 
-                        cursor = connection.cursor(db.cursors.DictCursor)
-                        cursor.execute("""SELECT * FROM addresses
-                                        WHERE student_id = '%s'""" % (student_id))
-                        for row in cursor.fetchall():
-                            address = row['address']
-                            eircode = row['eircode']
-                        cursor.close()
-
-
-                        # ATTENDANCE
-                        cursor = connection.cursor(db.cursors.DictCursor)
-                        cursor.execute("""SELECT * FROM attendance
-                                        WHERE class=1 and date between '2020-02-05' and '2020-02-07'""")
-                        for row in cursor.fetchall():
-                            for student in ['student_1', 'student_2', 'student_3']:
-                                x = row[student].split()
-                                if x[0] == student_id:
-                                    if x[1] == '1':
-                                        x[1]='Present'
-                                    elif x[1] == '0':
-                                        x[1]='Absent'
-                                    student_specific_attendance_dict[row['date']]=x[1]
+                            cursor = connection.cursor(db.cursors.DictCursor)
+                            cursor.execute("""SELECT * FROM addresses
+                                            WHERE student_id = '%s'""" % (student_id))
+                            for row in cursor.fetchall():
+                                address = row['address']
+                                eircode = row['eircode']
+                            cursor.close()
 
 
-                                #daily_attendance_dict[student_id_to_name_dict[x[0]]]=x[1]
+                            # ATTENDANCE
+                            cursor = connection.cursor(db.cursors.DictCursor)
+                            cursor.execute("""SELECT * FROM attendance
+                                            WHERE class=1 and date between '2020-02-05' and '2020-02-07'""")
+                            for row in cursor.fetchall():
+                                for student in ['student_1', 'student_2', 'student_3']:
+                                    x = row[student].split()
+                                    if x[0] == student_id:
+                                        if x[1] == '1':
+                                            x[1]='Present'
+                                        elif x[1] == '0':
+                                            x[1]='Absent'
+                                        student_specific_attendance_dict[row['date']]=x[1]
 
-                        cursor.close()
+
+                                    #daily_attendance_dict[student_id_to_name_dict[x[0]]]=x[1]
+
+                            cursor.close()
 
 
-                        # POINTS
-                        cursor = connection.cursor(db.cursors.DictCursor)
-                        cursor.execute("""SELECT * FROM points
-                                        WHERE student_id = '%s'""" % (student_id))
-                        for row in cursor.fetchall():
-                            weekly=row['weekly']
-                            monthly=row['monthly']
-                            yearly=row['yearly']
-                        cursor.close()
+                            # POINTS
+                            cursor = connection.cursor(db.cursors.DictCursor)
+                            cursor.execute("""SELECT * FROM points
+                                            WHERE student_id = '%s'""" % (student_id))
+                            for row in cursor.fetchall():
+                                weekly=row['weekly']
+                                monthly=row['monthly']
+                                yearly=row['yearly']
+                            cursor.close()
 
-                        # HOMEWORK
-                        cursor = connection.cursor(db.cursors.DictCursor)
-                        cursor.execute("""SELECT * FROM homework
-                                        WHERE student_id = '%s'""" % (student_id))
-                        # append all file submissions even if null
-                        for row in cursor.fetchall():
-                            #only possible to submit 4 files now for simplicity
-                            for i in range(1,5):
-                                file[0] = row['file1']
-                                file[1] = row['file2']
-                                file[2] = row['file3']
-                                file[3] = row['file4']
-                        cursor.close()
+                            # HOMEWORK
+                            cursor = connection.cursor(db.cursors.DictCursor)
+                            cursor.execute("""SELECT * FROM homework
+                                            WHERE student_id = '%s'""" % (student_id))
+                            # append all file submissions even if null
+                            for row in cursor.fetchall():
+                                #only possible to submit 4 files now for simplicity
+                                for i in range(1,5):
+                                    file[0] = row['file1']
+                                    file[1] = row['file2']
+                                    file[2] = row['file3']
+                                    file[3] = row['file4']
+                            cursor.close()
+
+                        if event_date_input != '':
+                            cursor = connection.cursor(db.cursors.DictCursor)
+                            cursor.execute("""INSERT INTO `calendar` (`id`, `class`, `event_date`, `event_description`) VALUES (NULL, '%s', '%s', '%s');""" % (current_class, event_date_input, event_descrition_input))
+                            connection.commit()
+                            cursor.close()
+
                         connection.close()
+                        print('Location: teacher.py')
 
                     except db.Error:
                         result = '<p>Sorry! We are experiencing problems at the moment. Please call back later.</p>'
@@ -405,6 +430,19 @@ print("""
                     <div id="schedule">
                         <h1>Schedule</h1>
                         <div id='calendar'></div>
+
+                        <div class="event-input">
+                        <form action="teacher.py" method="post" class="event-input-form">
+                            <h1>Create an Event</h1>
+                            <label for="event-date-input" class="sr-only">Event Date</label>
+                            <input name="event-date-input" type="text" id="event-date-input" class="form-control" placeholder="DD-MM-YYYY" required autofocus>
+                            <label for="event-description-input" class="sr-only">Description</label>
+                            <input name="event-description-input"type="text" id="event-description-input" class="form-control" placeholder="Description" required>
+                            <button class="landing btn btn-lg btn-primary btn-block" type="submit">Create Event</button>
+                        </form>
+                        </div>
+
+
                         <div id="events-schedule">
                             <table class="table table-hover events-table">
                               <thead class="thead-dark">
@@ -414,13 +452,10 @@ print("""
                                 </tr>
                               </thead>
                               <tbody>
-                                <tr>
-                                  <th scope="row">19-02-20</th>
-                                  <td>Test</td>
-                                </tr>
                                 %s
                             </table>
                         </div>
+                        %s
                     </div>
                 </div>
               </main>
@@ -443,4 +478,4 @@ print("""
       list(student_specific_attendance_dict.keys())[1], list(student_specific_attendance_dict.values())[1],\
       list(student_specific_attendance_dict.keys())[2], list(student_specific_attendance_dict.values())[2],\
       weekly, monthly, yearly, \
-      file[0], file[1], file[2], file[3], events_table))
+      file[0], file[1], file[2], file[3], events_table,event_date_input))
