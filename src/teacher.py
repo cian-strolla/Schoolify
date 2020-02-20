@@ -38,6 +38,7 @@ event_date = ''
 event_description = ''
 event_date_input = ''
 event_descrition_input = ''
+event_id = ''
 
 
 student_id_to_name_dict={}
@@ -101,9 +102,15 @@ if http_cookie_header:
                     for row in cursor.fetchall():
                         event_date = row['event_date']
                         event_description = row['event_description']
+                        event_id = str(row['id'])
                         events_table += "<tr>"
                         events_table += "<td>" + event_date + "</td>"
                         events_table += "<td>" + event_description + "</td>"
+                        events_table +="""<td>
+                                            <form action="deleteEvent.py" method="post">
+                                                <button name="delete-button" value=\"""" + event_id + """\" class=\"delete-button" type=\"submit\">Delete</button>
+                                            </form>
+                                        </td>"""
                         events_table += "</tr>"
                     connection.commit()
                     cursor.close()
@@ -449,6 +456,7 @@ print("""
                                 <tr>
                                   <th class="date" scope="col">Date</th>
                                   <th class="event" scope="col">Event</th>
+                                  <th class="delete-button" scope="col"></th>
                                 </tr>
                               </thead>
                               <tbody>
