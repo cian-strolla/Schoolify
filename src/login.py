@@ -19,7 +19,7 @@ display = ''
 base_page="""<body>
 
   <form action="login.py" method="post" class="form-signin">
-    <img class="mb-4" src="{{ site.baseurl }}/docs/{{ site.docs_version }}/assets/brand/bootstrap-solid.svg" alt="" width="72" height="72">
+    <svg class="mb-4" src="{{ site.baseurl }}/docs/{{ site.docs_version }}/assets/brand/bootstrap-solid.svg" alt="" width="72" height="72">
     <h1 class="h3 mb-3 font-weight-normal"><center><img src="./assets/just_logo.png" width="125px" height="125px"></center></h1>
     <label for="inputEmail" class="sr-only">Email address</label>
     <input name="email" type="email" id="inputEmail" class="form-control" placeholder="Email address" required autofocus>
@@ -82,7 +82,7 @@ if email != '':
         result="""<body>
 
           <form action="login.py" method="post" class="form-signin">
-            <img class="mb-4" src="{{ site.baseurl }}/docs/{{ site.docs_version }}/assets/brand/bootstrap-solid.svg" alt="" width="72" height="72">
+            <svg class="mb-4" src="{{ site.baseurl }}/docs/{{ site.docs_version }}/assets/brand/bootstrap-solid.svg" alt="" width="72" height="72">
             <h1 class="h3 mb-3 font-weight-normal"><center><img src="./assets/just_logo.png" width="125px" height="125px"></center></h1>
             <p class="error-message"> Incorrect Username or Password </p>
             <p class="error-message"> Please try again </p>
