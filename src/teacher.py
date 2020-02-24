@@ -25,7 +25,7 @@ student_id = ''
 address = ''
 eircode = ''
 # HOMEWORK
-file = ["","","",""]
+homework_table =""
 # POINTS
 weekly=''
 monthly=''
@@ -161,18 +161,25 @@ if http_cookie_header:
 
                             # HOMEWORK
                             cursor = connection.cursor(db.cursors.DictCursor)
+                                # currently using a workaround where instead of sending the eamil of teacher_name
+                                # from login.py I'm using the teacher_name@gamil.com
                             cursor.execute("""SELECT * FROM homework
-                                            WHERE student_id = '%s'""" % (student_id))
-                            # append all file submissions even if null
+                                            WHERE student_id = '%s'
+                                            AND teacher_email = '%s@gmail.com'""" % (student_id, teacher_name))
+                                # append all file submissions even if null
+                            count =1
                             for row in cursor.fetchall():
-                                #only possible to submit 4 files now for simplicity
-                                for i in range(1,5):
-                                    file[0] = row['file1']
-                                    file[1] = row['file2']
-                                    file[2] = row['file3']
-                                    file[3] = row['file4']
+                                # currently all files are in correct order so no need to use file_order atribute yet
+                                # as this simplifies matters a lot
+                                homework_table += """<tr>
+                                                        <td>Week %d</td>
+                                                        <td><a href="%s" download>Week 1 Solution</a></td>
+                                                        <td> %d </td>
+                                                    </tr>""" %(count, row[file_name], row[result])
+                                count+=1
                             cursor.close()
 
+                        # SCHEDULE
                         if event_date_input != '':
                             cursor = connection.cursor(db.cursors.DictCursor)
                             cursor.execute("""INSERT INTO `calendar` (`id`, `class`, `event_date`, `event_description`) VALUES (NULL, '%s', '%s', '%s');""" % (current_class, event_date_input, event_descrition_input))
@@ -377,28 +384,17 @@ print("""
                         <p>Yearly: %s</p>
                     </div>
                     <div id="homework">
-    						<h1>Homework</h1>
+    					<h1>Homework</h1>
     					<table>
     						<tr>
     							<th>Week</th>
     							<th>Submission</th>
+                                <th>Result</th>
     						</tr>
-    						<tr>
-    							<td>Week1</td>
-    							<td>%s</td>
-    						</tr>
-    						<tr>
-    							<td>Week2</td>
-    							<td>%s</td>
-    						</tr>
-    						<tr>
-    							<td>Week3</td>
-    							<td>%s</td>
-    						</tr>
-    						<tr>
-    							<td>Week4</td>
-    							<td>%s</td>
-    						</tr>
+
+    						<!-- creating these table rows dynamically now so that more rows can be added when needed-->
+                            %s
+
     					</table>
                     </div>
                     <div id="schedule">
@@ -453,4 +449,4 @@ print("""
       list(student_specific_attendance_dict.keys())[0], list(student_specific_attendance_dict.values())[0],\
       list(student_specific_attendance_dict.keys())[0], list(student_specific_attendance_dict.values())[0],\
       weekly, monthly, yearly, \
-      file[0], file[1], file[2], file[3], events_table))
+      homework_table, events_table))
