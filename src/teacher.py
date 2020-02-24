@@ -163,20 +163,22 @@ if http_cookie_header:
                             cursor = connection.cursor(db.cursors.DictCursor)
                                 # currently using a workaround where instead of sending the eamil of teacher_name
                                 # from login.py I'm using the teacher_name@gamil.com
+                            teacher_email_name = teacher_name.replace(" ","")
                             cursor.execute("""SELECT * FROM homework
                                             WHERE student_id = '%s'
-                                            AND teacher_email = '%s@gmail.com'""" % (student_id, teacher_name))
+                                            AND teacher_email = '%s@gmail.com'""" % (student_id, teacher_email_name.lower()))
+                            
+                            week =1
                                 # append all file submissions even if null
-                            count =1
                             for row in cursor.fetchall():
                                 # currently all files are in correct order so no need to use file_order atribute yet
                                 # as this simplifies matters a lot
                                 homework_table += """<tr>
-                                                        <td>Week %d</td>
-                                                        <td><a href="%s" download>Week 1 Solution</a></td>
-                                                        <td> %d </td>
-                                                    </tr>""" %(count, row[file_name], row[result])
-                                count+=1
+                                                        <td>Week %s</td>
+                                                        <td><a href="%s" download>Solution</a></td>
+                                                        <td> %s </td>
+                                                    </tr>""" % (str(week), row['filename'], str(row['result']))
+                                week+=1
                             cursor.close()
 
                         # SCHEDULE
