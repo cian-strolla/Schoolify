@@ -187,7 +187,10 @@ if http_cookie_header:
                             cursor.close()
 
                         connection.close()
-                        print('Location: teacher.py')
+                        # commenting this out prevents the website from being redirected to
+                        # teacher.py just after entering a student id
+
+                        # print('Location: teacher.py')
 
                     except db.Error:
                         result = '<p>Sorry! We are experiencing problems at the moment. Please call back later.</p>'
