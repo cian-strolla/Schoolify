@@ -100,7 +100,7 @@ if http_cookie_header:
                     cursor.execute("""SELECT * FROM calendar WHERE class = %s""" % (current_class))
 
                     for row in cursor.fetchall():
-                        event_date = row['event_date']
+                        event_date = str(row['event_date'])
                         event_description = row['event_description']
                         event_id = str(row['id'])
                         events_table += "<tr>"

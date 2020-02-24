@@ -25,7 +25,7 @@ if http_cookie_header:
     if 'sid' in cookie:
         sid = cookie['sid'].value
         session_store = open('sess_' + sid, writeback=False)
-        #if authenticated cookie redirect to homepage
+        #if authenticated cookie redirect to teacher.py
         if session_store['authenticated']:
             if session_store['account_type'] == "2":
                 try:
@@ -38,7 +38,7 @@ if http_cookie_header:
                 except db.Error:
                     result = "<p>Sorry! We are experiencing problems at the moment. Please call back later.</p>"
 
-print('Location: teacher.py')
+print('Location: teacher.py#schedule')
 
 print('Content-Type: text/html')
 print()
