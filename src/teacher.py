@@ -75,19 +75,6 @@ if http_cookie_header:
                     cursor.close()
 
                     cursor = connection.cursor(db.cursors.DictCursor)
-                    cursor.execute("""SELECT * FROM attendance
-                                            WHERE date='2020-02-07' and class=1""") #% (now.strftime("%Y-%m-%d")))
-
-                    for row in cursor.fetchall():
-                        for student in ['student_1', 'student_2', 'student_3']:
-                            x = row[student].split()
-                            if x[1] == '1':
-                                x[1]='Present'
-                            elif x[1] == '0':
-                                x[1]='Absent'
-                            daily_attendance_dict[student_id_to_name_dict[x[0]]]=x[1]
-                    cursor.close()
-                    cursor = connection.cursor(db.cursors.DictCursor)
                     cursor.execute("""SELECT * FROM students
                                     WHERE class=1""")
                     for row in cursor.fetchall():
@@ -159,26 +146,6 @@ if http_cookie_header:
                             for row in cursor.fetchall():
                                 address = row['address']
                                 eircode = row['eircode']
-                            cursor.close()
-
-
-                            # ATTENDANCE
-                            cursor = connection.cursor(db.cursors.DictCursor)
-                            cursor.execute("""SELECT * FROM attendance
-                                            WHERE class=1 and date between '2020-02-05' and '2020-02-07'""")
-                            for row in cursor.fetchall():
-                                for student in ['student_1', 'student_2', 'student_3']:
-                                    x = row[student].split()
-                                    if x[0] == student_id:
-                                        if x[1] == '1':
-                                            x[1]='Present'
-                                        elif x[1] == '0':
-                                            x[1]='Absent'
-                                        student_specific_attendance_dict[row['date']]=x[1]
-
-
-                                    #daily_attendance_dict[student_id_to_name_dict[x[0]]]=x[1]
-
                             cursor.close()
 
 
@@ -442,7 +409,7 @@ print("""
                         <form action="teacher.py" method="post" class="event-input-form">
                             <h1>Create an Event</h1>
                             <label for="event-date-input" class="sr-only">Event Date</label>
-                            <input name="event-date-input" type="text" id="event-date-input" class="form-control" placeholder="DD-MM-YYYY" required autofocus>
+                            <input name="event-date-input" type="text" id="event-date-input" class="form-control" placeholder="YYYY-MM-DD" required autofocus>
                             <label for="event-description-input" class="sr-only">Description</label>
                             <input name="event-description-input"type="text" id="event-description-input" class="form-control" placeholder="Description" required>
                             <button class="landing btn btn-lg btn-primary btn-block" type="submit">Create Event</button>
@@ -461,9 +428,9 @@ print("""
                               </thead>
                               <tbody>
                                 %s
+                            </tbody>
                             </table>
                         </div>
-                        %s
                     </div>
                 </div>
               </main>
@@ -478,12 +445,12 @@ print("""
     """ % (no_student_JSAlert, student_id, student_firstname, student_lastname,\
     teacher_name, \
      list(daily_attendance_dict.keys())[0], list(daily_attendance_dict.values())[0],\
-     list(daily_attendance_dict.keys())[1], list(daily_attendance_dict.values())[1],\
-     list(daily_attendance_dict.keys())[2], list(daily_attendance_dict.values())[2],\
+     list(daily_attendance_dict.keys())[0], list(daily_attendance_dict.values())[0],\
+     list(daily_attendance_dict.keys())[0], list(daily_attendance_dict.values())[0],\
       address, eircode, student_phone_number,\
       student_firstname, student_lastname, \
       list(student_specific_attendance_dict.keys())[0], list(student_specific_attendance_dict.values())[0],\
-      list(student_specific_attendance_dict.keys())[1], list(student_specific_attendance_dict.values())[1],\
-      list(student_specific_attendance_dict.keys())[2], list(student_specific_attendance_dict.values())[2],\
+      list(student_specific_attendance_dict.keys())[0], list(student_specific_attendance_dict.values())[0],\
+      list(student_specific_attendance_dict.keys())[0], list(student_specific_attendance_dict.values())[0],\
       weekly, monthly, yearly, \
-      file[0], file[1], file[2], file[3], events_table,event_date_input))
+      file[0], file[1], file[2], file[3], events_table))
