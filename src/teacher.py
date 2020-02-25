@@ -84,7 +84,7 @@ if http_cookie_header:
                     current_class = session_store['class']
                     current_class = int(current_class)
                     cursor = connection.cursor(db.cursors.DictCursor)
-                    cursor.execute("""SELECT * FROM calendar WHERE class = %s""" % (current_class))
+                    cursor.execute("""SELECT * FROM calendar WHERE class = %s ORDER BY event_date""" % (current_class))
 
                     for row in cursor.fetchall():
                         event_date = str(row['event_date'])
@@ -189,6 +189,8 @@ if http_cookie_header:
                             cursor.execute("""INSERT INTO `calendar` (`id`, `class`, `event_date`, `event_description`) VALUES (NULL, '%s', '%s', '%s');""" % (current_class, event_date_input, event_descrition_input))
                             connection.commit()
                             cursor.close()
+                            connection.close()
+                            print('Location: teacher.py#schedule')
 
                         connection.close()
                         # commenting this out prevents the website from being redirected to
