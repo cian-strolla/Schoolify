@@ -88,7 +88,7 @@ if email != '':
             <input name="password"type="password" id="confirmPassword" class="form-control" placeholder="Confirm Password" required>
             <label for="accountType" class="sr-only">Account Type</label>
             <input name="accountType"type="accountType" id="accountType" class="form-control" placeholder="Account Type" required>
-            
+
             <div class="checkbox mb-3">
               <label>
                 <input type="checkbox" value="remember-me"> Remember me
