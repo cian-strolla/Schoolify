@@ -167,17 +167,19 @@ if http_cookie_header:
                             cursor.execute("""SELECT * FROM homework
                                             WHERE student_id = '%s'
                                             AND teacher_email = '%s@gmail.com'""" % (student_id, teacher_email_name.lower()))
-                            
+
                             week =1
                                 # append all file submissions even if null
                             for row in cursor.fetchall():
-                                # currently all files are in correct order so no need to use file_order atribute yet
+                                # Currently all files are in correct order so no need to use file_order atribute yet
                                 # as this simplifies matters a lot
+                                # Changed the file structure for where homework files will be stored to make it easier
                                 homework_table += """<tr>
                                                         <td>Week %s</td>
-                                                        <td><a href="%s" download>Solution</a></td>
+                                                        <td><a href="homework/%s/%s" download>Solution</a></td>
                                                         <td> %s </td>
-                                                    </tr>""" % (str(week), row['filename'], str(row['result']))
+                                                        <td> %s </td>
+                                                    </tr>""" % (str(week),student_id, row['filename'], str(row['result']), row['comments'])
                                 week+=1
                             cursor.close()
 
@@ -395,6 +397,7 @@ print("""
     							<th>Week</th>
     							<th>Submission</th>
                                 <th>Result</th>
+                                <th>Comments</th>
     						</tr>
 
     						<!-- creating these table rows dynamically now so that more rows can be added when needed-->

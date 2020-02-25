@@ -79,6 +79,10 @@ file9 VARCHAR(80),
 file10 VARCHAR(80),
 )";
 
+$table9 = "INSERT INTO homework (homework_id, teacher_email, student_id, filename, file_order, result, comments)
+VALUES (2, 'johnhogan@gmail.com', '112', 'file2.txt', 2, 90, "Excellent Result!"),
+VALUES (3, 'johnhogan@gmail.com', '112', 'file3.txt', 3, 45, "We'll have to talk :(");"
+
 
 
 if ($conn->query($table1) === TRUE) {
