@@ -81,11 +81,11 @@ if http_cookie_header:
 
                 cursor = connection.cursor(db.cursors.DictCursor)
                 cursor.execute("""SELECT * FROM attendance
-                                        WHERE date='2020-02-07'""") #% (now.strftime("%Y-%m-%d")))
+                                        WHERE date='2020-02-24'""") #% (now.strftime("%Y-%m-%d")))
 
                 for row in cursor.fetchall():
-                    for student in ['student_1', 'student_2', 'student_3']:
-                        x = row[student].split()
+                    for student in ['112', '207', '248']:
+                        x = row['student'].split()
                         for child in children_list:
                             if x[0] == child:
                                 if x[1] == '1':
@@ -292,18 +292,15 @@ print("""
                             <tbody>
                               <tr>
                                 <th scope="row">1</th>
-                                <td>%s</td>
-                                <td>%s</td>
+
                               </tr>
                               <tr>
                                 <th scope="row">2</th>
-                                <td>%s</td>
-                                <td>%s</td>
+
                               </tr>
                               <tr>
                                 <th scope="row">3</th>
-                                <td>%s</td>
-                                <td>%s</td>
+
                               </tr>
 
                           </table>
@@ -380,13 +377,13 @@ print("""
     </html>
     """ % (no_student_JSAlert, student_id, student_firstname, student_lastname,\
     parent_name, \
-     daily_attendance_dict[children_list[0]], daily_attendance_dict[children_list[0]],\
-     list(daily_attendance_dict.keys())[1], list(daily_attendance_dict.values())[1],\
-     list(daily_attendance_dict.keys())[2], list(daily_attendance_dict.values())[2],\
+     #daily_attendance_dict[children_list[0]], daily_attendance_dict[children_list[0]],\
+     #list(daily_attendance_dict.keys())[0], list(daily_attendance_dict.values())[0],\
+     #list(daily_attendance_dict.keys())[0], list(daily_attendance_dict.values())[0],\
       address, eircode, student_phone_number,\
       student_firstname, student_lastname, \
       list(student_specific_attendance_dict.keys())[0], list(student_specific_attendance_dict.values())[0],\
-      list(student_specific_attendance_dict.keys())[1], list(student_specific_attendance_dict.values())[1],\
-      list(student_specific_attendance_dict.keys())[2], list(student_specific_attendance_dict.values())[2],\
+      list(student_specific_attendance_dict.keys())[0], list(student_specific_attendance_dict.values())[0],\
+      list(student_specific_attendance_dict.keys())[0], list(student_specific_attendance_dict.values())[0],\
       weekly, monthly, yearly, \
       file[0], file[1], file[2], file[3]))
