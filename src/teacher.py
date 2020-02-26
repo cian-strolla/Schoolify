@@ -551,7 +551,6 @@ print("""
                                 %s
                             </tbody>
                             </table>
-                            %s
                         </div>
                     </div>
                 </div>
@@ -574,4 +573,4 @@ print("""
       list(student_specific_attendance_dict.keys())[0], list(student_specific_attendance_dict.values())[0],\
       list(student_specific_attendance_dict.keys())[0], list(student_specific_attendance_dict.values())[0],\
       list(student_specific_attendance_dict.keys())[0], list(student_specific_attendance_dict.values())[0],\
-      class_points_table, student_specific_points, student_specific_points_graph, homework_table, events_table, result))
+      class_points_table, student_specific_points, student_specific_points_graph, homework_table, events_table))
