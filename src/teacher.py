@@ -99,8 +99,10 @@ if http_cookie_header:
                     for i in range(0, len(attendance_list)):
                         if attendance_list[i]=='0':
                             daily_attendance_dict[student_id_to_name_dict[class_ids_list[i]]]='Absent'
-                        else:
+                        elif attendance_list[i]=='1':
                             daily_attendance_dict[student_id_to_name_dict[class_ids_list[i]]]='Present'
+                        elif attendance_list[i]=='2':
+                            daily_attendance_dict[student_id_to_name_dict[class_ids_list[i]]]='Attendance Not Taken'
 
                     cursor.close()
 
@@ -446,7 +448,7 @@ print("""
                           </div>
                           <p>Welcome back %s</p>
                           <h1>Class Attendance</h1>
-                          <table class="table table-hover attendance-table">
+                          <table class="table table-hover">
                             <thead class="thead-dark">
                               <tr>
                                 <th scope="col">#</th>
@@ -470,8 +472,40 @@ print("""
                                 <td>%s</td>
                                 <td>%s</td>
                               </tr>
+                            </table>
 
-                          </table>
+                            <!-- TAKE ATTENDANCE TABLE -->
+                            <h1>Take Daily Attendance</h1>
+                            <table class="table table-hover">
+                              <thead class="thead-dark">
+                                <tr>
+                                  <th scope="col">#</th>
+                                  <th scope="col">Student Name</th>
+                                  <th scope="col">Present</th>
+                                  <th scope="col">Absent</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr>
+                                  <th scope="row">1</th>
+                                  <td>%s</td>
+                                  <td><input type="radio" name="optradio"></td>
+                                  <td><input type="radio" name="optradio"></td>
+                                </tr>
+                                <tr>
+                                  <th scope="row">2</th>
+                                  <td>%s</td>
+                                  <td><input type="radio" name="optradio"></td>
+                                  <td><input type="radio" name="optradio"></td>
+                                </tr>
+                                <tr>
+                                  <th scope="row">3</th>
+                                  <td>%s</td>
+                                  <td><input type="radio" name="optradio"></td>
+                                  <td><input type="radio" name="optradio"></td>
+                                </tr>
+                              </table>
+
                     </div>
                     <div class="col-md-8" id="personal-info">
 
@@ -589,6 +623,9 @@ print("""
      list(daily_attendance_dict.keys())[0], list(daily_attendance_dict.values())[0],\
      list(daily_attendance_dict.keys())[1], list(daily_attendance_dict.values())[1],\
      list(daily_attendance_dict.keys())[2], list(daily_attendance_dict.values())[2],\
+     student_id_to_name_dict[class_ids_list[0]],\
+     student_id_to_name_dict[class_ids_list[1]],\
+     student_id_to_name_dict[class_ids_list[2]],\
       address, eircode, student_phone_number,\
       student_firstname, student_lastname, \
       list(student_specific_attendance_dict.keys())[0], list(student_specific_attendance_dict.values())[0],\
