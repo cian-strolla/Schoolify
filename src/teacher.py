@@ -46,7 +46,7 @@ attendance_list=[]
 class_ids_list=[]
 daily_attendance_dict=dict()
 student_specific_attendance_dict={'':'', '':'', '':''}
-daily_attendance_dict=student_specific_attendance_dict
+#daily_attendance_dict=student_specific_attendance_dict
 simple=''
 presence_dict=dict()
 
@@ -65,6 +65,9 @@ if http_cookie_header:
             if session_store['account_type'] == "2":
                 try:
                     teacher_name=session_store['name']
+                    current_class = session_store['class']
+                    current_class = int(current_class)
+
                     connection = db.connect('cs1.ucc.ie', 'rjf1', 'ahf1Aeho', '2021_rjf1')
                     cursor = connection.cursor(db.cursors.DictCursor)
                     cursor.execute("""SELECT * FROM students
@@ -74,15 +77,30 @@ if http_cookie_header:
 
                     cursor.close()
 
+                    # CLASS ID'S
                     cursor = connection.cursor(db.cursors.DictCursor)
-                    cursor.execute("""SELECT * FROM students
-                                    WHERE class=1""")
-                    for row in cursor.fetchall():
-                        class_ids_list.append(row['student_id'])
+                    cursor.execute("""SELECT student_ids FROM classes
+                                WHERE id=1""")
+
+                    class_ids_list=cursor.fetchone()['student_ids'].split()
+                    cursor.close()
+
+                    # CLASS ATTENDANCE
+                    cursor = connection.cursor(db.cursors.DictCursor)
+                    cursor.execute("""SELECT attendance FROM attendance
+                                WHERE class=1 and date='2020-02-07'""")
+
+                    attendance_list= list(cursor.fetchone()['attendance'])
+                    for i in range(0, len(attendance_list)):
+                        if attendance_list[i]=='0':
+                            daily_attendance_dict[student_id_to_name_dict[class_ids_list[i]]]='Absent'
+                        else:
+                            daily_attendance_dict[student_id_to_name_dict[class_ids_list[i]]]='Present'
+
+                    cursor.close()
+
 
                     # SCHEDULE
-                    current_class = session_store['class']
-                    current_class = int(current_class)
                     cursor = connection.cursor(db.cursors.DictCursor)
                     cursor.execute("""SELECT * FROM calendar WHERE class = %s""" % (current_class))
 
@@ -449,8 +467,8 @@ print("""
     """ % (no_student_JSAlert, student_id, student_firstname, student_lastname,\
     teacher_name, \
      list(daily_attendance_dict.keys())[0], list(daily_attendance_dict.values())[0],\
-     list(daily_attendance_dict.keys())[0], list(daily_attendance_dict.values())[0],\
-     list(daily_attendance_dict.keys())[0], list(daily_attendance_dict.values())[0],\
+     list(daily_attendance_dict.keys())[1], list(daily_attendance_dict.values())[1],\
+     list(daily_attendance_dict.keys())[2], list(daily_attendance_dict.values())[2],\
       address, eircode, student_phone_number,\
       student_firstname, student_lastname, \
       list(student_specific_attendance_dict.keys())[0], list(student_specific_attendance_dict.values())[0],\
