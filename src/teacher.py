@@ -69,7 +69,8 @@ if http_cookie_header:
             if session_store['account_type'] == "2":
                 try:
                     teacher_name=session_store['name']
-
+                    current_class = session_store['class']
+                    #current_class = int(current_class)
 
                     connection = db.connect('cs1.ucc.ie', 'rjf1', 'ahf1Aeho', '2021_rjf1')
                     # ATTENDANCE
@@ -109,8 +110,6 @@ if http_cookie_header:
                     # SCHEDULE
 
                     # POINTS
-                    current_class = session_store['class']
-                    current_class = int(current_class)
 
                     cursor = connection.cursor(db.cursors.DictCursor)
                     cursor.execute("""SELECT * FROM points_total WHERE class=%s""" % (current_class))
@@ -467,8 +466,13 @@ print("""
                     <div id="dashboard">
                           <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
                               <h1 class="h2">Dashboard</h1>
+                              <div class="align-items-end profile-header-container">
+    		                    <div class="profile-header-img">
+                                    <img class="img-circle" src="./assets/teacher/5.jpg" />
+                                </div>
+                               </div>
                           </div>
-                          <p>Welcome back %s</p>
+                          <p>Welcome back %s%s</p>
                           <h1>Class Attendance</h1>
                           <table class="table table-hover">
                             <thead class="thead-dark">
@@ -649,7 +653,7 @@ print("""
       </body>
     </html>
     """ % (points_chart, student_firstname, student_specific_points_graph_script, no_student_JSAlert, student_id, student_firstname, student_lastname,\
-    teacher_name, \
+    teacher_name, current_class,\
      list(daily_attendance_dict.keys())[0], list(daily_attendance_dict.values())[0],\
      list(daily_attendance_dict.keys())[1], list(daily_attendance_dict.values())[1],\
      list(daily_attendance_dict.keys())[2], list(daily_attendance_dict.values())[2],\
