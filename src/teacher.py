@@ -45,7 +45,6 @@ event_date_input = ''
 event_descrition_input = ''
 event_id = ''
 
-
 student_id_to_name_dict={}
 attendance_list=[]
 class_ids_list=[]
@@ -175,6 +174,29 @@ if http_cookie_header:
                             event_descrition_input = escape(form_data.getfirst('event-description-input'))
                         except:
                             event_descrition_input = ''
+                        try:
+                            student_1_attendance = escape(form_data.getfirst('optradio1'))
+                        except:
+                            student_1_attendance = '2'
+                        try:
+                            student_2_attendance = escape(form_data.getfirst('optradio2'))
+                        except:
+                            student_2_attendance = '2'
+                        try:
+                            student_3_attendance = escape(form_data.getfirst('optradio3'))
+                        except:
+                            student_3_attendance = '2'
+
+
+                        # TAKE ATTENDANCE
+
+                        connection = db.connect('cs1.ucc.ie', 'rjf1', 'ahf1Aeho', '2021_rjf1')
+                        # PERSONAL INFO
+                        cursor = connection.cursor(db.cursors.DictCursor)
+                        cursor.execute("""INSERT INTO attendance
+                                    VALUES('2020-02-20', 1, '%s')""" % (student_1_attendance+student_2_attendance+student_3_attendance))
+                        connection.commit()
+                        cursor.close()
 
                         connection = db.connect('cs1.ucc.ie', 'rjf1', 'ahf1Aeho', '2021_rjf1')
 
@@ -472,10 +494,13 @@ print("""
                                 <td>%s</td>
                                 <td>%s</td>
                               </tr>
+                             </tbody>
                             </table>
 
                             <!-- TAKE ATTENDANCE TABLE -->
+
                             <h1>Take Daily Attendance</h1>
+                            <form action="teacher.py" method="post">
                             <table class="table table-hover">
                               <thead class="thead-dark">
                                 <tr>
@@ -486,25 +511,30 @@ print("""
                                 </tr>
                               </thead>
                               <tbody>
+
                                 <tr>
                                   <th scope="row">1</th>
                                   <td>%s</td>
-                                  <td><input type="radio" name="optradio"></td>
-                                  <td><input type="radio" name="optradio"></td>
+                                  <td><input type="radio" name="optradio1" value="1"></td>
+                                  <td><input type="radio" name="optradio1" value="0"></td>
                                 </tr>
                                 <tr>
                                   <th scope="row">2</th>
                                   <td>%s</td>
-                                  <td><input type="radio" name="optradio"></td>
-                                  <td><input type="radio" name="optradio"></td>
+                                  <td><input type="radio" name="optradio2" value="1"></td>
+                                  <td><input type="radio" name="optradio2" value="0"></td>
                                 </tr>
                                 <tr>
                                   <th scope="row">3</th>
                                   <td>%s</td>
-                                  <td><input type="radio" name="optradio"></td>
-                                  <td><input type="radio" name="optradio"></td>
+                                  <td><input type="radio" name="optradio3" value="1"></td>
+                                  <td><input type="radio" name="optradio3" value="0"></td>
                                 </tr>
+
+                                </tbody>
                               </table>
+                              <input type="submit" value="Submit" />
+                              </form>
 
                     </div>
                     <div class="col-md-8" id="personal-info">
