@@ -27,10 +27,10 @@ eircode = ''
 # HOMEWORK
 homework_table =""
 # POINTS
-weekly=''
-monthly=''
-yearly=''
-x=''
+class_points_table = ''
+student_specific_points = ''
+points_reason = ''
+points_date = ''
 # SCHEDULE
 current_class = ''
 events_table = ''
@@ -64,8 +64,12 @@ if http_cookie_header:
         if session_store['authenticated']:
             if session_store['account_type'] == "2":
                 try:
+                    current_class = session_store['class']
+                    current_class = int(current_class)
                     teacher_name=session_store['name']
+
                     connection = db.connect('cs1.ucc.ie', 'rjf1', 'ahf1Aeho', '2021_rjf1')
+                    # ATTENDANCE
                     cursor = connection.cursor(db.cursors.DictCursor)
                     cursor.execute("""SELECT * FROM students
                                             WHERE class = '1'""")
@@ -80,9 +84,30 @@ if http_cookie_header:
                     for row in cursor.fetchall():
                         class_ids_list.append(row['student_id'])
 
+                    # POINTS
+                    cursor = connection.cursor(db.cursors.DictCursor)
+                    cursor.execute("""SELECT * FROM points_total WHERE class=%s""" % (current_class))
+                    result = current_class
+                    for row in cursor.fetchall():
+                        student_id = str(row['student_id'])
+                        cursor2 = connection.cursor(db.cursors.DictCursor)
+                        cursor2.execute("""SELECT * FROM students WHERE student_id=%s""" % (student_id))
+                        for row2 in cursor2.fetchall():
+                            student_firstname = row2['first_name']
+                            student_lastname = row2['last_name']
+                        connection.commit()
+                        cursor2.close()
+                        total_points = str(row['points'])
+                        class_points_table += "<tr>"
+                        class_points_table += "<td>" + student_firstname + " " + student_lastname + "</td>"
+                        class_points_table += "<td>" + total_points + "</td>"
+                        class_points_table += "</tr>"
+                    connection.commit()
+                    cursor.close()
+
+
+
                     # SCHEDULE
-                    current_class = session_store['class']
-                    current_class = int(current_class)
                     cursor = connection.cursor(db.cursors.DictCursor)
                     cursor.execute("""SELECT * FROM calendar WHERE class = %s ORDER BY event_date""" % (current_class))
 
@@ -101,7 +126,7 @@ if http_cookie_header:
                         events_table += "</tr>"
                     connection.commit()
                     cursor.close()
-                    cursor.close()
+                    connection.close()
 
                 except db.Error:
                     result = '<p>Sorry! We are experiencing problems at the moment. Please call back later.</p>'
@@ -150,14 +175,31 @@ if http_cookie_header:
 
 
                             # POINTS
+                            student_specific_points += """<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+                                                            <h1 class="h2">""" + student_firstname + """\'s Points</h1>
+                                                        </div>"""
+                            student_specific_points += """<table class="table table-hover reasons-table">
+                                                          <thead class="thead-dark">
+                                                            <tr>
+                                                              <th class="date" scope="col">Date</th>
+                                                              <th class="event" scope="col">Reason</th>
+                                                            </tr>
+                                                          </thead>
+                                                          <tbody>"""
                             cursor = connection.cursor(db.cursors.DictCursor)
-                            cursor.execute("""SELECT * FROM points
-                                            WHERE student_id = '%s'""" % (student_id))
+                            cursor.execute("""SELECT * FROM points_reasons WHERE student_id = %s ORDER BY reason_date""" % (student_id))
                             for row in cursor.fetchall():
-                                weekly=row['weekly']
-                                monthly=row['monthly']
-                                yearly=row['yearly']
+                                points_date = str(row['reason_date'])
+                                points_reason = row['reason']
+                                student_specific_points += "<tr>"
+                                student_specific_points += "<td>" + points_date + "</td>"
+                                student_specific_points += "<td>" + points_reason + "</td>"
+                                student_specific_points += "</tr>"
                             cursor.close()
+
+                            student_specific_points += """</tbody>
+                                                        </table>"""
+
 
                             # HOMEWORK
                             cursor = connection.cursor(db.cursors.DictCursor)
@@ -388,12 +430,26 @@ print("""
                       </table>
                     </div>
                     <div id="points">
-                        <p>Weekly: %s</p>
-                        <p>Monthly: %s</p>
-                        <p>Yearly: %s</p>
+                        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+                            <h1 class="h2">Points</h1>
+                        </div>
+                        <table class="table table-hover points-table">
+                          <thead class="thead-dark">
+                            <tr>
+                              <th class="student-name" scope="col">Student Name</th>
+                              <th class="student-points" scope="col">Points Accumulated</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            %s
+                          </tbody>
+                        </table>
+                        %s
                     </div>
                     <div id="homework">
-    					<h1>Homework</h1>
+    					<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+                            <h1 class="h2">Homework</h1>
+                        </div>
     					<table>
     						<tr>
     							<th>Week</th>
@@ -408,7 +464,9 @@ print("""
     					</table>
                     </div>
                     <div id="schedule">
-                        <h1>Schedule</h1>
+                        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+                            <h1 class="h2">Schedule</h1>
+                        </div>
                         <div id='calendar'></div>
 
                         <div class="event-input">
@@ -436,6 +494,7 @@ print("""
                                 %s
                             </tbody>
                             </table>
+                            %s
                         </div>
                     </div>
                 </div>
@@ -458,5 +517,4 @@ print("""
       list(student_specific_attendance_dict.keys())[0], list(student_specific_attendance_dict.values())[0],\
       list(student_specific_attendance_dict.keys())[0], list(student_specific_attendance_dict.values())[0],\
       list(student_specific_attendance_dict.keys())[0], list(student_specific_attendance_dict.values())[0],\
-      weekly, monthly, yearly, \
-      homework_table, events_table))
+      class_points_table, student_specific_points, homework_table, events_table, result))
