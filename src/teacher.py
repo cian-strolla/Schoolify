@@ -69,8 +69,6 @@ if http_cookie_header:
         if session_store['authenticated']:
             if session_store['account_type'] == "2":
                 try:
-                    current_class = session_store['class']
-                    current_class = int(current_class)
                     teacher_name=session_store['name']
 
                     connection = db.connect('cs1.ucc.ie', 'rjf1', 'ahf1Aeho', '2021_rjf1')
@@ -90,6 +88,8 @@ if http_cookie_header:
                         class_ids_list.append(row['student_id'])
 
                     # POINTS
+                    current_class = session_store['class']
+                    current_class = int(current_class)
                     cursor = connection.cursor(db.cursors.DictCursor)
                     cursor.execute("""SELECT * FROM points_total WHERE class=%s""" % (current_class))
                     result = current_class
