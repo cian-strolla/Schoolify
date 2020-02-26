@@ -32,6 +32,10 @@ student_specific_points = ''
 points_reason = ''
 points_date = ''
 points_chart = ''
+points = 0
+points_string = ''
+student_specific_points_graph = ''
+student_specific_points_graph_script = ''
 # SCHEDULE
 current_class = ''
 events_table = ''
@@ -193,14 +197,19 @@ if http_cookie_header:
                             for row in cursor.fetchall():
                                 points_date = str(row['reason_date'])
                                 points_reason = row['reason']
+                                points += int(row['points'])
+                                points_string = str(points)
                                 student_specific_points += "<tr>"
                                 student_specific_points += "<td>" + points_date + "</td>"
                                 student_specific_points += "<td>" + points_reason + "</td>"
                                 student_specific_points += "</tr>"
+                                student_specific_points_graph_script += "{ y: " + points_string +", label: \"" + points_date + " \", },"
                             cursor.close()
 
                             student_specific_points += """</tbody>
                                                         </table>"""
+
+                            student_specific_points_graph += "<div id=\"chartContainer2\"></div>"
 
 
                             # HOMEWORK
@@ -300,7 +309,7 @@ print("""
         <script>
         window.onload = function () {
 
-        var chart = new CanvasJS.Chart("chartContainer", {
+        var chart1 = new CanvasJS.Chart("chartContainer1", {
         	animationEnabled: true,
         	theme: "light2", // "light1", "light2", "dark1", "dark2"
         	title:{
@@ -316,7 +325,25 @@ print("""
         		]
         	}]
         });
-        chart.render();
+        chart1.render();
+
+        var chart2 = new CanvasJS.Chart("chartContainer2", {
+            animationEnabled: true,
+            theme: "light2",
+            title:{
+                text: "%s\'s Points History"
+            },
+            axisY:{
+                includeZero: false
+            },
+            data: [{
+                type: "line",
+                dataPoints: [
+                    { y: 0, label: \" \", }, %s
+                ]
+            }]
+        });
+        chart2.render();
 
         }
         </script>
@@ -471,8 +498,9 @@ print("""
                           </tbody>
                         </table>
                         %s
-                        <div id="chartContainer"></div>
+                        <div id="chartContainer1"></div>
                         <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+                        %s
                     </div>
                     <div id="homework">
     					<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
@@ -535,7 +563,7 @@ print("""
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
       </body>
     </html>
-    """ % (points_chart, no_student_JSAlert, student_id, student_firstname, student_lastname,\
+    """ % (points_chart, student_firstname, student_specific_points_graph_script, no_student_JSAlert, student_id, student_firstname, student_lastname,\
     teacher_name, \
      list(daily_attendance_dict.keys())[0], list(daily_attendance_dict.values())[0],\
      list(daily_attendance_dict.keys())[0], list(daily_attendance_dict.values())[0],\
@@ -545,4 +573,4 @@ print("""
       list(student_specific_attendance_dict.keys())[0], list(student_specific_attendance_dict.values())[0],\
       list(student_specific_attendance_dict.keys())[0], list(student_specific_attendance_dict.values())[0],\
       list(student_specific_attendance_dict.keys())[0], list(student_specific_attendance_dict.values())[0],\
-      class_points_table, student_specific_points, homework_table, events_table, result))
+      class_points_table, student_specific_points, student_specific_points_graph, homework_table, events_table, result))
