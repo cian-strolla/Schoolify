@@ -31,6 +31,7 @@ class_points_table = ''
 student_specific_points = ''
 points_reason = ''
 points_date = ''
+points_chart = ''
 # SCHEDULE
 current_class = ''
 events_table = ''
@@ -102,6 +103,7 @@ if http_cookie_header:
                         class_points_table += "<td>" + student_firstname + " " + student_lastname + "</td>"
                         class_points_table += "<td>" + total_points + "</td>"
                         class_points_table += "</tr>"
+                        points_chart +="{ y: " + total_points +", label: \"" + student_firstname + " " + student_lastname + "\" },"
                     connection.commit()
                     cursor.close()
 
@@ -175,7 +177,7 @@ if http_cookie_header:
 
 
                             # POINTS
-                            student_specific_points += """<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+                            student_specific_points += """<div id="student-specific-points"class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
                                                             <h1 class="h2">""" + student_firstname + """\'s Points</h1>
                                                         </div>"""
                             student_specific_points += """<table class="table table-hover reasons-table">
@@ -293,6 +295,30 @@ print("""
             calendar.render();
           });
 
+        </script>
+
+        <script>
+        window.onload = function () {
+
+        var chart = new CanvasJS.Chart("chartContainer", {
+        	animationEnabled: true,
+        	theme: "light2", // "light1", "light2", "dark1", "dark2"
+        	title:{
+        		text: "Student Points"
+        	},
+        	axisY: {
+        		title: "Total Points"
+        	},
+        	data: [{
+        		type: "column",
+        		dataPoints: [
+        			%s
+        		]
+        	}]
+        });
+        chart.render();
+
+        }
         </script>
 
 
@@ -445,6 +471,8 @@ print("""
                           </tbody>
                         </table>
                         %s
+                        <div id="chartContainer"></div>
+                        <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
                     </div>
                     <div id="homework">
     					<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
@@ -507,7 +535,7 @@ print("""
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
       </body>
     </html>
-    """ % (no_student_JSAlert, student_id, student_firstname, student_lastname,\
+    """ % (points_chart, no_student_JSAlert, student_id, student_firstname, student_lastname,\
     teacher_name, \
      list(daily_attendance_dict.keys())[0], list(daily_attendance_dict.values())[0],\
      list(daily_attendance_dict.keys())[0], list(daily_attendance_dict.values())[0],\
