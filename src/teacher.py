@@ -27,10 +27,15 @@ eircode = ''
 # HOMEWORK
 homework_table =""
 # POINTS
-weekly=''
-monthly=''
-yearly=''
-x=''
+class_points_table = ''
+student_specific_points = ''
+points_reason = ''
+points_date = ''
+points_chart = ''
+points = 0
+points_string = ''
+student_specific_points_graph = ''
+student_specific_points_graph_script = ''
 # SCHEDULE
 current_class = ''
 events_table = ''
@@ -65,10 +70,10 @@ if http_cookie_header:
             if session_store['account_type'] == "2":
                 try:
                     teacher_name=session_store['name']
-                    current_class = session_store['class']
-                    current_class = int(current_class)
+
 
                     connection = db.connect('cs1.ucc.ie', 'rjf1', 'ahf1Aeho', '2021_rjf1')
+                    # ATTENDANCE
                     cursor = connection.cursor(db.cursors.DictCursor)
                     cursor.execute("""SELECT * FROM students
                                             WHERE class = '1'""")
@@ -101,8 +106,37 @@ if http_cookie_header:
 
 
                     # SCHEDULE
+
+                    # POINTS
+                    current_class = session_store['class']
+                    current_class = int(current_class)
+
                     cursor = connection.cursor(db.cursors.DictCursor)
-                    cursor.execute("""SELECT * FROM calendar WHERE class = %s""" % (current_class))
+                    cursor.execute("""SELECT * FROM points_total WHERE class=%s""" % (current_class))
+                    result = current_class
+                    for row in cursor.fetchall():
+                        student_id = str(row['student_id'])
+                        cursor2 = connection.cursor(db.cursors.DictCursor)
+                        cursor2.execute("""SELECT * FROM students WHERE student_id=%s""" % (student_id))
+                        for row2 in cursor2.fetchall():
+                            student_firstname = row2['first_name']
+                            student_lastname = row2['last_name']
+                        connection.commit()
+                        cursor2.close()
+                        total_points = str(row['points'])
+                        class_points_table += "<tr>"
+                        class_points_table += "<td>" + student_firstname + " " + student_lastname + "</td>"
+                        class_points_table += "<td>" + total_points + "</td>"
+                        class_points_table += "</tr>"
+                        points_chart +="{ y: " + total_points +", label: \"" + student_firstname + " " + student_lastname + "\" },"
+                    connection.commit()
+                    cursor.close()
+
+
+
+                    # SCHEDULE
+                    cursor = connection.cursor(db.cursors.DictCursor)
+                    cursor.execute("""SELECT * FROM calendar WHERE class = %s ORDER BY event_date""" % (current_class))
 
                     for row in cursor.fetchall():
                         event_date = str(row['event_date'])
@@ -119,7 +153,7 @@ if http_cookie_header:
                         events_table += "</tr>"
                     connection.commit()
                     cursor.close()
-                    cursor.close()
+                    connection.close()
 
                 except db.Error:
                     result = '<p>Sorry! We are experiencing problems at the moment. Please call back later.</p>'
@@ -168,14 +202,36 @@ if http_cookie_header:
 
 
                             # POINTS
+                            student_specific_points += """<div id="student-specific-points"class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+                                                            <h1 class="h2">""" + student_firstname + """\'s Points</h1>
+                                                        </div>"""
+                            student_specific_points += """<table class="table table-hover reasons-table">
+                                                          <thead class="thead-dark">
+                                                            <tr>
+                                                              <th class="date" scope="col">Date</th>
+                                                              <th class="event" scope="col">Reason</th>
+                                                            </tr>
+                                                          </thead>
+                                                          <tbody>"""
                             cursor = connection.cursor(db.cursors.DictCursor)
-                            cursor.execute("""SELECT * FROM points
-                                            WHERE student_id = '%s'""" % (student_id))
+                            cursor.execute("""SELECT * FROM points_reasons WHERE student_id = %s ORDER BY reason_date""" % (student_id))
                             for row in cursor.fetchall():
-                                weekly=row['weekly']
-                                monthly=row['monthly']
-                                yearly=row['yearly']
+                                points_date = str(row['reason_date'])
+                                points_reason = row['reason']
+                                points += int(row['points'])
+                                points_string = str(points)
+                                student_specific_points += "<tr>"
+                                student_specific_points += "<td>" + points_date + "</td>"
+                                student_specific_points += "<td>" + points_reason + "</td>"
+                                student_specific_points += "</tr>"
+                                student_specific_points_graph_script += "{ y: " + points_string +", label: \"" + points_date + " \", },"
                             cursor.close()
+
+                            student_specific_points += """</tbody>
+                                                        </table>"""
+
+                            student_specific_points_graph += "<div id=\"chartContainer2\"></div>"
+
 
                             # HOMEWORK
                             cursor = connection.cursor(db.cursors.DictCursor)
@@ -207,6 +263,8 @@ if http_cookie_header:
                             cursor.execute("""INSERT INTO `calendar` (`id`, `class`, `event_date`, `event_description`) VALUES (NULL, '%s', '%s', '%s');""" % (current_class, event_date_input, event_descrition_input))
                             connection.commit()
                             cursor.close()
+                            connection.close()
+                            print('Location: teacher.py#schedule')
 
                         connection.close()
                         # commenting this out prevents the website from being redirected to
@@ -269,6 +327,49 @@ print("""
 
         </script>
 
+        <script>
+        window.onload = function () {
+
+        var chart1 = new CanvasJS.Chart("chartContainer1", {
+        	animationEnabled: true,
+        	theme: "light2", // "light1", "light2", "dark1", "dark2"
+        	title:{
+        		text: "Student Points"
+        	},
+        	axisY: {
+        		title: "Total Points"
+        	},
+        	data: [{
+        		type: "column",
+        		dataPoints: [
+        			%s
+        		]
+        	}]
+        });
+        chart1.render();
+
+        var chart2 = new CanvasJS.Chart("chartContainer2", {
+            animationEnabled: true,
+            theme: "light2",
+            title:{
+                text: "%s\'s Points History"
+            },
+            axisY:{
+                title: "Total Points",
+                includeZero: false
+            },
+            data: [{
+                type: "line",
+                dataPoints: [
+                    { y: 0, label: \" \", }, %s
+                ]
+            }]
+        });
+        chart2.render();
+
+        }
+        </script>
+
 
         <title>Schoolify</title>
       </head>
@@ -291,7 +392,7 @@ print("""
               <ul class="nav flex-column">
                 <li>
                   <img src="./assets/just_logo_whiteBG.png" width="60px" height="60px">
-                  <a class="#nav-link" href="#dashboard">Schoolify</a>
+                  <a class="#nav-link" href="teacher.py">Schoolify</a>
                 </li>
                 <li>
                   <!-- Search form -->
@@ -404,12 +505,29 @@ print("""
                       </table>
                     </div>
                     <div id="points">
-                        <p>Weekly: %s</p>
-                        <p>Monthly: %s</p>
-                        <p>Yearly: %s</p>
+                        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+                            <h1 class="h2">Class Points</h1>
+                        </div>
+                        <table class="table table-hover points-table">
+                          <thead class="thead-dark">
+                            <tr>
+                              <th class="student-name" scope="col">Student Name</th>
+                              <th class="student-points" scope="col">Points Accumulated</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            %s
+                          </tbody>
+                        </table>
+                        %s
+                        <div id="chartContainer1"></div>
+                        <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+                        %s
                     </div>
                     <div id="homework">
-    					<h1>Homework</h1>
+    					<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+                            <h1 class="h2">Homework</h1>
+                        </div>
     					<table>
     						<tr>
     							<th>Week</th>
@@ -424,7 +542,9 @@ print("""
     					</table>
                     </div>
                     <div id="schedule">
-                        <h1>Schedule</h1>
+                        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+                            <h1 class="h2">Schedule</h1>
+                        </div>
                         <div id='calendar'></div>
 
                         <div class="event-input">
@@ -464,7 +584,7 @@ print("""
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
       </body>
     </html>
-    """ % (no_student_JSAlert, student_id, student_firstname, student_lastname,\
+    """ % (points_chart, student_firstname, student_specific_points_graph_script, no_student_JSAlert, student_id, student_firstname, student_lastname,\
     teacher_name, \
      list(daily_attendance_dict.keys())[0], list(daily_attendance_dict.values())[0],\
      list(daily_attendance_dict.keys())[1], list(daily_attendance_dict.values())[1],\
@@ -474,5 +594,4 @@ print("""
       list(student_specific_attendance_dict.keys())[0], list(student_specific_attendance_dict.values())[0],\
       list(student_specific_attendance_dict.keys())[0], list(student_specific_attendance_dict.values())[0],\
       list(student_specific_attendance_dict.keys())[0], list(student_specific_attendance_dict.values())[0],\
-      weekly, monthly, yearly, \
-      homework_table, events_table))
+      class_points_table, student_specific_points, student_specific_points_graph, homework_table, events_table))

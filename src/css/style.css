@@ -168,3 +168,13 @@ td, th {
 .fc-scroller {
   height:100% !important;
 }
+
+#chartContainer1, #chartContainer2 {
+  height: 370px;
+  width: 100%;
+  margin-top: 4em;
+  margin-bottom: 4em;
+}
+canvas {
+  width:100% !important;
+}
