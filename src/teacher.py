@@ -210,7 +210,7 @@ if http_cookie_header:
 
 
                         # TAKE ATTENDANCE
-                        x='4'
+
                         connection = db.connect('cs1.ucc.ie', 'rjf1', 'ahf1Aeho', '2021_rjf1')
 
                         cursor = connection.cursor(db.cursors.DictCursor)
@@ -218,16 +218,16 @@ if http_cookie_header:
                                     SET attendance=%s WHERE date='2020-02-14'""" % (student_1_attendance+student_2_attendance+student_3_attendance))
                         connection.commit()
                         cursor.close()
-                        connection.close()
-                        x='rop'
 
                         if student_id != '':
                             x='3'
+                            x=student_id
 
                             # PERSONAL INFO
                             cursor = connection.cursor(db.cursors.DictCursor)
                             cursor.execute("""SELECT * FROM students
-                                            WHERE student_id = '%s'""" % (student_id))
+                                            WHERE student_id = %s""" % (student_id))
+                            x='4'
 
                             fetched = cursor.fetchall()
                             if len(fetched)==0:
@@ -366,7 +366,7 @@ if not attendance_taken:
       </table>
       <input type="submit" value="Submit" />
 
-      
+
       </form>""" % (student_id_to_name_dict[class_ids_list[0]],\
       student_id_to_name_dict[class_ids_list[1]],\
       student_id_to_name_dict[class_ids_list[2]])
