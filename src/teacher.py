@@ -45,15 +45,16 @@ event_description = ''
 event_date_input = ''
 event_descrition_input = ''
 event_id = ''
-x='default'
+'default'
 attendance_table=''
 attendance_taken=False
+x=''
 
 student_id_to_name_dict={}
 attendance_list=[]
 class_ids_list=[]
 daily_attendance_dict=dict()
-student_specific_attendance_dict={'':'', '':'', '':''}
+student_specific_attendance_dict={'2020-02-05':'no student selected', '2020-02-06':'no student selected', '2020-02-07':'no student selected'}
 #daily_attendance_dict=student_specific_attendance_dict
 simple=''
 presence_dict=dict()
@@ -101,7 +102,7 @@ if http_cookie_header:
                                 WHERE class=1 and date='2020-02-14'""")
                     fetched=cursor.fetchone()
                     if(fetched==None):
-                        x+='poo'
+
                         cursor.close()
                         cursor = connection.cursor(db.cursors.DictCursor)
                         cursor.execute("""INSERT INTO attendance
@@ -110,7 +111,7 @@ if http_cookie_header:
                         cursor.close()
 
                     else:
-                        x='paw'
+
                         attendance_list= list(fetched['attendance'])
                         for i in range(0, len(attendance_list)):
                             if attendance_list[i]=='0':
@@ -128,7 +129,6 @@ if http_cookie_header:
                     # SCHEDULE
 
                     # POINTS
-                    x='1'
                     cursor = connection.cursor(db.cursors.DictCursor)
                     cursor.execute("""SELECT * FROM points_total WHERE class=%s""" % (current_class))
                     result = current_class
@@ -180,7 +180,7 @@ if http_cookie_header:
                     result = '<p>Sorry! We are experiencing problems at the moment. Please call back later.</p>'
 
                 if len(form_data) != 0:
-                    x='2'
+
                     try:
                         # check which input fields contain data
                         try:
@@ -209,7 +209,7 @@ if http_cookie_header:
                             student_3_attendance = '2'
 
 
-                        # TAKE ATTENDANCE
+                        # UPDATE ATTENDANCE
 
                         connection = db.connect('cs1.ucc.ie', 'rjf1', 'ahf1Aeho', '2021_rjf1')
 
@@ -220,15 +220,11 @@ if http_cookie_header:
                         cursor.close()
 
                         if student_id != '':
-                            x='3'
-                            x=student_id
 
                             # PERSONAL INFO
                             cursor = connection.cursor(db.cursors.DictCursor)
                             cursor.execute("""SELECT * FROM students
                                             WHERE student_id = %s""" % (student_id))
-                            x='4'
-
                             fetched = cursor.fetchall()
                             if len(fetched)==0:
                                 no_student_JSAlert='alert("Student Doesn\'t Exist. Search for a Valid Student ID.");'
@@ -247,8 +243,32 @@ if http_cookie_header:
                                 eircode = row['eircode']
                             cursor.close()
 
+                            # STUDENT-SPECIFIC ATTENDANCE
+                            student_index=0
+                            for i in range(len(class_ids_list)):
 
-                            # POINTS
+                                if class_ids_list[i]==str(student_id):
+                                    student_index=i
+                            x=student_index
+                            cursor = connection.cursor(db.cursors.DictCursor)
+
+                            cursor.execute("""SELECT * FROM attendance
+                                            WHERE class=1 and date between '2020-02-05' and '2020-02-07'""")
+
+                            # clear the dictionary for new entries
+                            student_specific_attendance_dict.clear()
+                            for row in cursor.fetchall():
+                                if list(row['attendance'])[student_index]=='1':
+                                    student_specific_attendance_dict[row['date']]='Present'
+                                elif list(row['attendance'])[student_index]=='0':
+                                    student_specific_attendance_dict[row['date']]='Absent'
+                                else:
+                                    student_specific_attendance_dict[row['date']]='N/A'
+                                
+
+                            cursor.close()
+
+                            # STUDENT_SPECIFIC POINTS
                             student_specific_points += """<div id="student-specific-points"class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
                                                             <h1 class="h2">""" + student_firstname + """\'s Points</h1>
                                                         </div>"""
@@ -538,7 +558,7 @@ print("""
                                 </div>
                                </div>
                           </div>
-                          <p>Welcome back %s%s%s</p>
+                          <p>Welcome back %s</p>
                           <h1>Class Attendance</h1>
                           <table class="table table-hover">
                             <thead class="thead-dark">
@@ -694,14 +714,15 @@ print("""
       </body>
     </html>
     """ % (points_chart, student_firstname, student_specific_points_graph_script, no_student_JSAlert, student_id, student_firstname, student_lastname,\
-    today, teacher_name, current_class, x,\
+    today, teacher_name,\
      list(daily_attendance_dict.keys())[0], list(daily_attendance_dict.values())[0],\
      list(daily_attendance_dict.keys())[1], list(daily_attendance_dict.values())[1],\
      list(daily_attendance_dict.keys())[2], list(daily_attendance_dict.values())[2],\
      attendance_table, \
       address, eircode, student_phone_number,\
-      student_firstname, student_lastname, \
+      student_firstname, student_lastname,\
       list(student_specific_attendance_dict.keys())[0], list(student_specific_attendance_dict.values())[0],\
-      list(student_specific_attendance_dict.keys())[0], list(student_specific_attendance_dict.values())[0],\
-      list(student_specific_attendance_dict.keys())[0], list(student_specific_attendance_dict.values())[0],\
+      list(student_specific_attendance_dict.keys())[1], list(student_specific_attendance_dict.values())[1],\
+      list(student_specific_attendance_dict.keys())[2], list(student_specific_attendance_dict.values())[2
+      ],\
       class_points_table, student_specific_points, student_specific_points_graph, homework_table, events_table))
