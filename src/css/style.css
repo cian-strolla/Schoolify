@@ -189,10 +189,17 @@ canvas {
  * Profile image component
  */
 
-
 .profile-header-img > img.img-circle {
     width: 90px;
     height: 90px;
     border: 2px solid #581D59;
     border-radius: 50%;
 }
+<<<<<<< HEAD
+=======
+#date{
+  font-size: 20px;
+}
+
+
+>>>>>>> b95621aad7c1566739f022313550fdabf5cd4494
