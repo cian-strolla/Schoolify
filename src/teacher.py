@@ -149,6 +149,9 @@ if http_cookie_header:
                         points_chart +="{ y: " + total_points +", label: \"" + student_firstname + " " + student_lastname + "\" },"
                     connection.commit()
                     cursor.close()
+                    student_id = ''
+                    student_firstname = ''
+                    student_lastname = ''
 
 
 
@@ -362,6 +365,8 @@ if not attendance_taken:
         </tbody>
       </table>
       <input type="submit" value="Submit" />
+
+      
       </form>""" % (student_id_to_name_dict[class_ids_list[0]],\
       student_id_to_name_dict[class_ids_list[1]],\
       student_id_to_name_dict[class_ids_list[2]])
@@ -477,6 +482,7 @@ print("""
                   <img src="./assets/just_logo_whiteBG.png" width="60px" height="60px">
                   <a class="#nav-link" href="teacher.py">Schoolify</a>
                 </li>
+
                 <li>
                   <!-- Search form -->
                   <form action="teacher.py" method="get">
@@ -488,7 +494,6 @@ print("""
                   <!--<div class="row col-md-2" id="top-row">Student</div>               -->
                   Student: <strong>%s %s</strong>
                 </li>
-
                 <li>
                   <i class="fas fa-user-graduate"></i>
                   <a class="#nav-link" href="#personal-info">Personal Information</a>
@@ -573,9 +578,11 @@ print("""
                         <strong>Eircode: </strong> %s
                         <strong>Phone Number: </strong> %s
                     </div>
+
                     <div id="term-reports">
                         <p>Test2</p>
                     </div>
+
                     <div id="attendance">
                       <h1>Attendance for %s %s</h1>
                       <table>
@@ -595,9 +602,9 @@ print("""
                             <td>%s</td>
                             <td>%s</td>
                           </tr>
-
                       </table>
                     </div>
+
                     <div id="points">
                         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
                             <h1 class="h2">Class Points</h1>
@@ -618,6 +625,7 @@ print("""
                         <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
                         %s
                     </div>
+
                     <div id="homework">
     					<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
                             <h1 class="h2">Homework</h1>
@@ -629,12 +637,19 @@ print("""
                                 <th>Result</th>
                                 <th>Comments</th>
     						</tr>
-
     						<!-- creating these table rows dynamically now so that more rows can be added when needed-->
                             %s
-
     					</table>
+                        <p></p>
+                        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+                            <h1 class="h2">Upload homework</h1>
+                        </div>
+                        <form enctype="multipart/form-data" action="uploadfile.py" method="post">
+                            <p>File: <input type="file" name="filename" /></p>
+                            <p><input type="submit" value="upload" /></p>
+                        </form>
                     </div>
+
                     <div id="schedule">
                         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
                             <h1 class="h2">Schedule</h1>
@@ -652,7 +667,6 @@ print("""
                         </form>
                         </div>
 
-
                         <div id="events-schedule">
                             <table class="table table-hover events-table">
                               <thead class="thead-dark">
@@ -667,6 +681,7 @@ print("""
                             </tbody>
                             </table>
                         </div>
+
                     </div>
                 </div>
               </main>
