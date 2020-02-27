@@ -6,7 +6,7 @@ enable()
 from cgi import FieldStorage, escape
 import pymysql as db
 from hashlib import sha256
-from time import time
+from datetime import date
 from shelve import open
 from http.cookies import SimpleCookie
 from os import environ
@@ -15,6 +15,7 @@ from html import escape
 
 no_student_JSAlert=''
 result = ''
+today=date.today()
 # PERSONAL IFNO
 student_firstname = ''
 student_lastname = ''
@@ -44,6 +45,9 @@ event_description = ''
 event_date_input = ''
 event_descrition_input = ''
 event_id = ''
+x='default'
+attendance_table=''
+attendance_taken=False
 
 student_id_to_name_dict={}
 attendance_list=[]
@@ -91,18 +95,32 @@ if http_cookie_header:
                     cursor.close()
 
                     # CLASS ATTENDANCE
+
                     cursor = connection.cursor(db.cursors.DictCursor)
                     cursor.execute("""SELECT attendance FROM attendance
-                                WHERE class=1 and date='2020-02-07'""")
+                                WHERE class=1 and date='2020-02-14'""")
+                    fetched=cursor.fetchone()
+                    if(fetched==None):
+                        x+='poo'
+                        cursor.close()
+                        cursor = connection.cursor(db.cursors.DictCursor)
+                        cursor.execute("""INSERT INTO attendance
+                                    VALUES('2020-02-14', 1, '222')""")
+                        connection.commit()
+                        cursor.close()
 
-                    attendance_list= list(cursor.fetchone()['attendance'])
-                    for i in range(0, len(attendance_list)):
-                        if attendance_list[i]=='0':
-                            daily_attendance_dict[student_id_to_name_dict[class_ids_list[i]]]='Absent'
-                        elif attendance_list[i]=='1':
-                            daily_attendance_dict[student_id_to_name_dict[class_ids_list[i]]]='Present'
-                        elif attendance_list[i]=='2':
-                            daily_attendance_dict[student_id_to_name_dict[class_ids_list[i]]]='Attendance Not Taken'
+                    else:
+                        x='paw'
+                        attendance_list= list(fetched['attendance'])
+                        for i in range(0, len(attendance_list)):
+                            if attendance_list[i]=='0':
+                                attendance_taken=True
+                                daily_attendance_dict[student_id_to_name_dict[class_ids_list[i]]]='Absent'
+                            elif attendance_list[i]=='1':
+                                attendance_taken=True
+                                daily_attendance_dict[student_id_to_name_dict[class_ids_list[i]]]='Present'
+                            elif attendance_list[i]=='2':
+                                daily_attendance_dict[student_id_to_name_dict[class_ids_list[i]]]='Attendance Not Taken'
 
                     cursor.close()
 
@@ -110,7 +128,7 @@ if http_cookie_header:
                     # SCHEDULE
 
                     # POINTS
-
+                    x='1'
                     cursor = connection.cursor(db.cursors.DictCursor)
                     cursor.execute("""SELECT * FROM points_total WHERE class=%s""" % (current_class))
                     result = current_class
@@ -159,6 +177,7 @@ if http_cookie_header:
                     result = '<p>Sorry! We are experiencing problems at the moment. Please call back later.</p>'
 
                 if len(form_data) != 0:
+                    x='2'
                     try:
                         # check which input fields contain data
                         try:
@@ -188,18 +207,20 @@ if http_cookie_header:
 
 
                         # TAKE ATTENDANCE
-
+                        x='4'
                         connection = db.connect('cs1.ucc.ie', 'rjf1', 'ahf1Aeho', '2021_rjf1')
-                        # PERSONAL INFO
+
                         cursor = connection.cursor(db.cursors.DictCursor)
-                        cursor.execute("""INSERT INTO attendance
-                                    VALUES('2020-02-20', 1, '%s')""" % (student_1_attendance+student_2_attendance+student_3_attendance))
+                        cursor.execute("""UPDATE attendance
+                                    SET attendance=%s WHERE date='2020-02-14'""" % (student_1_attendance+student_2_attendance+student_3_attendance))
                         connection.commit()
                         cursor.close()
-
-                        connection = db.connect('cs1.ucc.ie', 'rjf1', 'ahf1Aeho', '2021_rjf1')
+                        connection.close()
+                        x='rop'
 
                         if student_id != '':
+                            x='3'
+
                             # PERSONAL INFO
                             cursor = connection.cursor(db.cursors.DictCursor)
                             cursor.execute("""SELECT * FROM students
@@ -305,6 +326,45 @@ if http_cookie_header:
         print('Location: login.py')
 else:
     print('Location: login.py')
+if not attendance_taken:
+    attendance_table=attendance_table="""<h1>Take Daily Attendance</h1>
+    <form action="teacher.py" onsubmit="post();return false;">
+    <table class="table table-hover">
+      <thead class="thead-dark">
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Student Name</th>
+          <th scope="col">Present</th>
+          <th scope="col">Absent</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <tr>
+          <th scope="row">1</th>
+          <td>%s</td>
+          <td><input type="radio" name="optradio1" value="1"></td>
+          <td><input type="radio" name="optradio1" value="0"></td>
+        </tr>
+        <tr>
+          <th scope="row">2</th>
+          <td>%s</td>
+          <td><input type="radio" name="optradio2" value="1"></td>
+          <td><input type="radio" name="optradio2" value="0"></td>
+        </tr>
+        <tr>
+          <th scope="row">3</th>
+          <td>%s</td>
+          <td><input type="radio" name="optradio3" value="1"></td>
+          <td><input type="radio" name="optradio3" value="0"></td>
+        </tr>
+
+        </tbody>
+      </table>
+      <input type="submit" value="Submit" />
+      </form>""" % (student_id_to_name_dict[class_ids_list[0]],\
+      student_id_to_name_dict[class_ids_list[1]],\
+      student_id_to_name_dict[class_ids_list[2]])
 
 print('Content-Type: text/html')
 print()
@@ -465,14 +525,15 @@ print("""
                   <div class="hidden-content">
                     <div id="dashboard">
                           <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-                              <h1 class="h2">Dashboard</h1>
+                              <h1 class="h2">Dashboard<p id="date">%s</p></h1>
+
                               <div class="align-items-end profile-header-container">
     		                    <div class="profile-header-img">
                                     <img class="img-circle" src="./assets/teacher/5.jpg" />
                                 </div>
                                </div>
                           </div>
-                          <p>Welcome back %s%s</p>
+                          <p>Welcome back %s%s%s</p>
                           <h1>Class Attendance</h1>
                           <table class="table table-hover">
                             <thead class="thead-dark">
@@ -502,43 +563,8 @@ print("""
                             </table>
 
                             <!-- TAKE ATTENDANCE TABLE -->
+                            %s
 
-                            <h1>Take Daily Attendance</h1>
-                            <form action="teacher.py" method="post">
-                            <table class="table table-hover">
-                              <thead class="thead-dark">
-                                <tr>
-                                  <th scope="col">#</th>
-                                  <th scope="col">Student Name</th>
-                                  <th scope="col">Present</th>
-                                  <th scope="col">Absent</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-
-                                <tr>
-                                  <th scope="row">1</th>
-                                  <td>%s</td>
-                                  <td><input type="radio" name="optradio1" value="1"></td>
-                                  <td><input type="radio" name="optradio1" value="0"></td>
-                                </tr>
-                                <tr>
-                                  <th scope="row">2</th>
-                                  <td>%s</td>
-                                  <td><input type="radio" name="optradio2" value="1"></td>
-                                  <td><input type="radio" name="optradio2" value="0"></td>
-                                </tr>
-                                <tr>
-                                  <th scope="row">3</th>
-                                  <td>%s</td>
-                                  <td><input type="radio" name="optradio3" value="1"></td>
-                                  <td><input type="radio" name="optradio3" value="0"></td>
-                                </tr>
-
-                                </tbody>
-                              </table>
-                              <input type="submit" value="Submit" />
-                              </form>
 
                     </div>
                     <div class="col-md-8" id="personal-info">
@@ -653,13 +679,11 @@ print("""
       </body>
     </html>
     """ % (points_chart, student_firstname, student_specific_points_graph_script, no_student_JSAlert, student_id, student_firstname, student_lastname,\
-    teacher_name, current_class,\
+    today, teacher_name, current_class, x,\
      list(daily_attendance_dict.keys())[0], list(daily_attendance_dict.values())[0],\
      list(daily_attendance_dict.keys())[1], list(daily_attendance_dict.values())[1],\
      list(daily_attendance_dict.keys())[2], list(daily_attendance_dict.values())[2],\
-     student_id_to_name_dict[class_ids_list[0]],\
-     student_id_to_name_dict[class_ids_list[1]],\
-     student_id_to_name_dict[class_ids_list[2]],\
+     attendance_table, \
       address, eircode, student_phone_number,\
       student_firstname, student_lastname, \
       list(student_specific_attendance_dict.keys())[0], list(student_specific_attendance_dict.values())[0],\
