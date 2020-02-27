@@ -264,7 +264,7 @@ if http_cookie_header:
                                     student_specific_attendance_dict[row['date']]='Absent'
                                 else:
                                     student_specific_attendance_dict[row['date']]='N/A'
-                                
+
 
                             cursor.close()
 
@@ -604,7 +604,10 @@ print("""
                     </div>
 
                     <div id="attendance">
-                      <h1>Attendance for %s %s</h1>
+                        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+                            <h1 class="h2">Attendance for %s %s</h1>
+                        </div>
+
                       <table>
                           <tr>
                             <th>Date</th>
