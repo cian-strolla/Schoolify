@@ -19,7 +19,7 @@ result = ''
 student_firstname = ''
 student_lastname = ''
 student_phone_number=''
-teacher_name=''
+teacher_name=' '
 form_data = FieldStorage()
 student_id = ''
 address = ''
@@ -106,9 +106,6 @@ if http_cookie_header:
 
                     cursor.close()
 
-
-                    # SCHEDULE
-
                     # POINTS
 
                     cursor = connection.cursor(db.cursors.DictCursor)
@@ -135,9 +132,8 @@ if http_cookie_header:
                     student_firstname = ''
                     student_lastname = ''
 
-
-
                     # SCHEDULE
+
                     cursor = connection.cursor(db.cursors.DictCursor)
                     cursor.execute("""SELECT * FROM calendar WHERE class = %s ORDER BY event_date""" % (current_class))
 
@@ -161,9 +157,13 @@ if http_cookie_header:
                 except db.Error:
                     result = '<p>Sorry! We are experiencing problems at the moment. Please call back later.</p>'
 
+                teacher_email_name = teacher_name.replace(" ","")
+                teacher_email_name = teacher_email_name.lower()
+
                 if len(form_data) != 0:
                     try:
                         # check which input fields contain data
+                        # and from with source, i.e. from searching or from adding event
                         try:
                             student_id = escape(form_data.getfirst('student_id'))
                         except:
@@ -188,6 +188,10 @@ if http_cookie_header:
                             student_3_attendance = escape(form_data.getfirst('optradio3'))
                         except:
                             student_3_attendance = '2'
+                        try:
+                            file_upload = escape(form_data.getfirst('filename'))
+                        except:
+                            file_upload = ''
 
 
                         # TAKE ATTENDANCE
@@ -263,10 +267,9 @@ if http_cookie_header:
                             cursor = connection.cursor(db.cursors.DictCursor)
                                 # currently using a workaround where instead of sending the eamil of teacher_name
                                 # from login.py I'm using the teacher_name@gamil.com
-                            teacher_email_name = teacher_name.replace(" ","")
                             cursor.execute("""SELECT * FROM homework
                                             WHERE student_id = '%s'
-                                            AND teacher_email = '%s@gmail.com'""" % (student_id, teacher_email_name.lower()))
+                                            AND teacher_email = '%s@gmail.com'""" % (student_id, teacher_email_name))
 
                             week =1
                                 # append all file submissions even if null
@@ -292,11 +295,34 @@ if http_cookie_header:
                             connection.close()
                             print('Location: teacher.py#schedule')
 
-                        connection.close()
                         # commenting this out prevents the website from being redirected to
                         # teacher.py just after entering a student id
 
                         # print('Location: teacher.py')
+
+                        # HOMEWORK
+                        if file_upload != '':
+                            try:
+                                result_mark = escape(form_data.getfirst('result'))
+                            except:
+                                result_mark = ''
+                            try:
+                                comment = escape(form_data.getfirst('comments'))
+                            except:
+                                comment = ''
+                            try:
+                                student_hw_id = escape(form_data.getfirst('student-id'))
+                            except:
+                                student_hw_id = student_id
+                            cursor = connection.cursor(db.cursors.DictCursor)
+                            cursor.execute("""INSERT INTO homework (homework_id, teacher_email, student_id, filename, file_order, result, comments)
+                                            VALUES (4, %s, %s, %s, 4, %s, %s);""" %(teacher_email_name, student_hw_id, file_upload, result_mark, comment))
+                            connection.commit()
+                            cursor.close()
+                            connection.close()
+                            print('Location: teacher.py#homework')
+
+                        connection.close()
 
                     except db.Error:
                         result = '<p>Sorry! We are experiencing problems at the moment. Please call back later.</p>'
@@ -616,10 +642,22 @@ print("""
                         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
                             <h1 class="h2">Upload homework</h1>
                         </div>
-                        <form enctype="multipart/form-data" action="uploadfile.py" method="post">
-                            <p>File: <input type="file" name="filename" /></p>
-                            <p><input type="submit" value="upload" /></p>
-                        </form>
+                        <table>
+                            <tr>
+                                <th>Submission</th>
+                                <th>Result</th>
+                                <th>Comment</th>
+                                <th>Student</th>
+                                <th>Submit</th>
+                            </tr>
+                            <form enctype="multipart/form-data" action="teacher.py" method="post">
+								<td>File: <input type="file" name="filename" /></td>
+								<td><input type="text" id="result" class="result" name="result"/></td>
+								<td><input type="text" id="comments" name="comments"/></td>
+								<td><input type="text" id="student_id" class="student-id" name="student-id" value="%s"/></td>
+								<td><input type="submit" value="upload" /></p></td>
+							</form>
+                        </table>
                     </div>
 
                     <div id="schedule">
@@ -678,4 +716,4 @@ print("""
       list(student_specific_attendance_dict.keys())[0], list(student_specific_attendance_dict.values())[0],\
       list(student_specific_attendance_dict.keys())[0], list(student_specific_attendance_dict.values())[0],\
       list(student_specific_attendance_dict.keys())[0], list(student_specific_attendance_dict.values())[0],\
-      class_points_table, student_specific_points, student_specific_points_graph, homework_table, events_table))
+      class_points_table, student_specific_points, student_specific_points_graph, homework_table, student_id, events_table))
