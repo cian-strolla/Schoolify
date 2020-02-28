@@ -88,7 +88,7 @@ body {
     padding: .5rem;
     color: white;
     background-color: #581D59;
-    border: 1px solid rgba(86,61,124,.2);
+    
 }
 .nav a{
   color: white;
@@ -197,4 +197,7 @@ canvas {
 }
 #date{
   font-size: 20px;
+}
+.search_bar{
+  margin-bottom: 10px;
 }

@@ -135,8 +135,8 @@ if http_cookie_header:
                     class_ids_list=cursor.fetchone()['student_ids'].split()
                     cursor.close()
 
-                    # CLASS ATTENDANCE
 
+                    # CLASS ATTENDANCE
                     cursor = connection.cursor(db.cursors.DictCursor)
                     cursor.execute("""SELECT attendance FROM attendance
                                 WHERE class=1 and date='2020-02-14'""")
@@ -591,12 +591,12 @@ print("""
                   <a class="#nav-link" href="teacher.py">Schoolify</a>
                 </li>
 
-                <li>
-                  <!-- Search form -->
-                  <form action="teacher.py" method="get">
-                      <input class="form-control" type="text" name="student_id" value="%s" placeholder="Student ID" aria-label="Search" id="student_id" />
-                      <input type="submit" value="Search" />
-                  </form>
+                <!--Search Form-->
+                <li class="search_bar">
+                    <form class="form-inline d-flex justify-content-center md-form form-sm mt-0" action="teacher.py" method="get">
+                        <i class="fas fa-search" aria-hidden="true"></i>
+                        <input class="form-control form-control-sm ml-3 w-75" name="student_id" value="%s" type="text" placeholder="Student ID" aria-label="Search">
+                    </form>
                 </li>
                 <li>
                   <!--<div class="row col-md-2" id="top-row">Student</div>               -->
