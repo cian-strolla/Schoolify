@@ -19,12 +19,16 @@ today=date.today()
 # PERSONAL IFNO
 student_firstname = ''
 student_lastname = ''
-student_phone_number=''
+parent_firstname = ''
+parent_lastname = ''
+contact_number=''
 teacher_name=' '
 form_data = FieldStorage()
 student_id = ''
 address = ''
 eircode = ''
+personal_info = ''
+date_of_birth = ''
 # HOMEWORK
 homework_table =""
 # POINTS
@@ -78,6 +82,42 @@ if http_cookie_header:
                     #current_class = int(current_class)
 
                     connection = db.connect('cs1.ucc.ie', 'rjf1', 'ahf1Aeho', '2021_rjf1')
+                    # PERSONAL INFO
+                    cursor = connection.cursor(db.cursors.DictCursor)
+                    cursor.execute("""SELECT * FROM students where class=%s"""% current_class)
+
+                    for row in cursor.fetchall():
+                        student_id = str(row['student_id'])
+                        student_firstname = row['first_name']
+                        student_lastname = row['last_name']
+
+                        cursor2 = connection.cursor(db.cursors.DictCursor)
+                        cursor2.execute("""SELECT * FROM parents where child1=%s or child2=%s or child3=%s or child4=%s"""% (student_id,student_id,student_id,student_id))
+                        for row2 in cursor2.fetchall():
+                            parent_firstname = row2['first_name']
+                            parent_lastname = row2['last_name']
+                        cursor2.close()
+
+                        cursor3 = connection.cursor(db.cursors.DictCursor)
+                        cursor3.execute("""SELECT * FROM addresses WHERE student_id=%s"""% student_id)
+                        for row3 in cursor3.fetchall():
+                            address = row3['address']
+                            eircode = row3['eircode']
+                        cursor3.close()
+
+                        date_of_birth = str(row['date_of_birth'])
+                        contact_number = str(row['phone_number'])
+                        personal_info += "<tr>"
+                        personal_info += "<td>" + student_firstname + " " + student_lastname + "</td>"
+                        personal_info += "<td>" + parent_firstname + " " + parent_lastname +"</td>"
+                        personal_info += "<td>" + date_of_birth + "</td>"
+                        personal_info += "<td>" + address + "</td>"
+                        personal_info += "<td>" + eircode + "</td>"
+                        personal_info += "<td>" + contact_number + "</td>"
+                        events_table += "</tr>"
+                    connection.commit()
+                    cursor.close()
+
                     # ATTENDANCE
                     cursor = connection.cursor(db.cursors.DictCursor)
                     cursor.execute("""SELECT * FROM students
@@ -146,9 +186,6 @@ if http_cookie_header:
                         points_chart +="{ y: " + total_points +", label: \"" + student_firstname + " " + student_lastname + "\" },"
                     connection.commit()
                     cursor.close()
-                    student_id = ''
-                    student_firstname = ''
-                    student_lastname = ''
 
                     # SCHEDULE
 
@@ -171,6 +208,10 @@ if http_cookie_header:
                     connection.commit()
                     cursor.close()
                     connection.close()
+
+                    student_firstname = ''
+                    student_lastname = ''
+                    student_id = ''
 
                 except db.Error:
                     result = '<p>Sorry! We are experiencing problems at the moment. Please call back later.</p>'
@@ -236,16 +277,9 @@ if http_cookie_header:
                                 for row in fetched:
                                     student_firstname = row['first_name']
                                     student_lastname = row['last_name']
-                                    student_phone_number = row['phone_number']
+                                    contact_number = row['phone_number']
                             cursor.close()
 
-                            cursor = connection.cursor(db.cursors.DictCursor)
-                            cursor.execute("""SELECT * FROM addresses
-                                            WHERE student_id = '%s'""" % (student_id))
-                            for row in cursor.fetchall():
-                                address = row['address']
-                                eircode = row['eircode']
-                            cursor.close()
 
                             # STUDENT-SPECIFIC ATTENDANCE
                             student_index=0
@@ -446,6 +480,7 @@ print("""
 
         <script src='fullcalendar/core/main.js'></script>
         <script src='fullcalendar/daygrid/main.js'></script>
+        <script src="canvasjs.min.js"></script>
 
         <script>
 
@@ -619,10 +654,24 @@ print("""
 
                     </div>
                     <div class="col-md-8" id="personal-info">
-
-                        <strong>Address: </strong> %s
-                        <strong>Eircode: </strong> %s
-                        <strong>Phone Number: </strong> %s
+                        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+                            <h1 class="h2">Personal Information</h1>
+                        </div>
+                        <table class="table table-hover personal-info-table">
+                          <thead class="thead-dark">
+                            <tr>
+                              <th class="date" scope="col">Student</th>
+                              <th class="event" scope="col">Parent</th>
+                              <th class="event" scope="col">DOB</th>
+                              <th class="event" scope="col">Address</th>
+                              <th class="event" scope="col">Eircode</th>
+                              <th class="event" scope="col">Contact Number</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            %s
+                        </tbody>
+                        </table>
                     </div>
 
                     <div id="term-reports">
@@ -671,7 +720,6 @@ print("""
                         </table>
                         %s
                         <div id="chartContainer1"></div>
-                        <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
                         %s
                     </div>
 
@@ -759,8 +807,7 @@ print("""
      list(daily_attendance_dict.keys())[0], list(daily_attendance_dict.values())[0],\
      list(daily_attendance_dict.keys())[1], list(daily_attendance_dict.values())[1],\
      list(daily_attendance_dict.keys())[2], list(daily_attendance_dict.values())[2],\
-     attendance_table, \
-      address, eircode, student_phone_number,\
+     attendance_table, personal_info, \
       student_firstname, student_lastname,\
       list(student_specific_attendance_dict.keys())[0], list(student_specific_attendance_dict.values())[0],\
       list(student_specific_attendance_dict.keys())[1], list(student_specific_attendance_dict.values())[1],\
