@@ -267,6 +267,7 @@ if http_cookie_header:
                         if student_id != '':
 
                             # PERSONAL INFO
+                            personal_info = ''
                             cursor = connection.cursor(db.cursors.DictCursor)
                             cursor.execute("""SELECT * FROM students
                                             WHERE student_id = %s""" % (student_id))
@@ -275,9 +276,35 @@ if http_cookie_header:
                                 no_student_JSAlert='alert("Student Doesn\'t Exist. Search for a Valid Student ID.");'
                             else:
                                 for row in fetched:
+                                    student_id = str(row['student_id'])
                                     student_firstname = row['first_name']
                                     student_lastname = row['last_name']
-                                    contact_number = row['phone_number']
+
+                                    cursor2 = connection.cursor(db.cursors.DictCursor)
+                                    cursor2.execute("""SELECT * FROM parents where child1=%s or child2=%s or child3=%s or child4=%s"""% (student_id,student_id,student_id,student_id))
+                                    for row2 in cursor2.fetchall():
+                                        parent_firstname = row2['first_name']
+                                        parent_lastname = row2['last_name']
+                                    cursor2.close()
+
+                                    cursor3 = connection.cursor(db.cursors.DictCursor)
+                                    cursor3.execute("""SELECT * FROM addresses WHERE student_id=%s"""% student_id)
+                                    for row3 in cursor3.fetchall():
+                                        address = row3['address']
+                                        eircode = row3['eircode']
+                                    cursor3.close()
+
+                                    date_of_birth = str(row['date_of_birth'])
+                                    contact_number = str(row['phone_number'])
+                                    personal_info += "<tr>"
+                                    personal_info += "<td>" + student_firstname + " " + student_lastname + "</td>"
+                                    personal_info += "<td>" + parent_firstname + " " + parent_lastname +"</td>"
+                                    personal_info += "<td>" + date_of_birth + "</td>"
+                                    personal_info += "<td>" + address + "</td>"
+                                    personal_info += "<td>" + eircode + "</td>"
+                                    personal_info += "<td>" + contact_number + "</td>"
+                                    events_table += "</tr>"
+                                connection.commit()
                             cursor.close()
 
 
