@@ -763,11 +763,6 @@ print("""
       address, eircode, student_phone_number,\
       student_firstname, student_lastname,\
       list(student_specific_attendance_dict.keys())[0], list(student_specific_attendance_dict.values())[0],\
-<<<<<<< HEAD
-      class_points_table, student_specific_points, student_specific_points_graph, homework_table, student_id, events_table))
-=======
       list(student_specific_attendance_dict.keys())[1], list(student_specific_attendance_dict.values())[1],\
-      list(student_specific_attendance_dict.keys())[2], list(student_specific_attendance_dict.values())[2
-      ],\
-      class_points_table, student_specific_points, student_specific_points_graph, homework_table, events_table))
->>>>>>> b95621aad7c1566739f022313550fdabf5cd4494
+      list(student_specific_attendance_dict.keys())[2], list(student_specific_attendance_dict.values())[2],\
+      class_points_table, student_specific_points, student_specific_points_graph, homework_table, student_id, events_table))
