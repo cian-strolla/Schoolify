@@ -215,12 +215,15 @@ if http_cookie_header:
                     # Discussion
 
                     printer = ""
+                    counter = 0
                     teacher_id = session_store['id']
                     cursor = connection.cursor(db.cursors.DictCursor)
 
                     cursor.execute("""SELECT * FROM discussion_board WHERE sender_id = %s""" % (teacher_id))
 
                     for row in cursor.fetchall():
+                        counter += 1
+                        sender_id = row['sender_id']
                         receiver_id = row["receiver_id"]
                         cursor2 = connection.cursor(db.cursors.DictCursor)
                         cursor2.execute("SELECT * FROM parents WHERE id = %s" % (receiver_id))
@@ -233,9 +236,11 @@ if http_cookie_header:
                         printer += parent_firstname
                         printer += "</td>"
                         printer += "<td>"
-                        printer += "Click to open"
+                        printer += "<button class='discussion_buttons' onclick='displayDiscussion(%s)'>Click to open</button>" % (counter)
                         printer += "</td>"
                         printer += "</tr>"
+                        printer += "<p hidden id=sender_id+%s>%s</p>" % (counter, sender_id)
+                        printer += "<p hidden id=receiver_id+%s>%s</p>" % (counter, receiver_id)
                     connection.commit()
                     cursor.close()
                     connection.close()
@@ -607,6 +612,23 @@ print("""
             myFunction()
         </script>
 
+        <script>
+            function displayDiscussion(checker) {
+                get_sender = 'sender_id+' + checker
+                get_receiver = 'receiver_id+' + checker
+                var sender_id = document.getElementById(get_sender).innerHTML;
+                var receiver_id = document.getElementById(get_receiver).innerHTML;
+                xmlhttp = new XMLHttpRequest();
+                xmlhttp.onreadystatechange = function() {
+                    if (this.readyState == 4 && this.status == 200) {
+                        document.getElementById("current_discussion").innerHTML = this.responseText;
+                    }
+                };
+                xmlhttp.open("GET","get_discussion.php?q="+sender_id+"&k="+receiver_id,true);
+                xmlhttp.send();
+            }
+        </script>
+
         <!--<div class="current-student-container container"></div>-->
 
         <div class="view-options container-fluid">
@@ -868,6 +890,9 @@ print("""
                                     %s
                                 </tbody>
                             </table>
+                            <div>
+                                <p id="current_discussion"></p>
+                            </div>
                         </div>
                     </div>
                 </div>
