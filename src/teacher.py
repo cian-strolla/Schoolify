@@ -626,6 +626,10 @@ print("""
                   <i class="far fa-calendar"></i>
                   <a class="#nav-link" href="#schedule">Schedule</a>
                 </li>
+                <li>
+                    <i class="far fa-comment-dots"></i>
+                    <a class="#nav-link" href="#discussion">Discussion Board</a>
+                </li>
                 <li class="logout-button">
                   <i class="fas fa-sign-out-alt"></i>
                   <a class="#nav-link" href="./logout.py">Logout</a>
@@ -818,6 +822,11 @@ print("""
                             </table>
                         </div>
 
+                    </div>
+                    <div id="discussion">
+                        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+                            <h1 class="h2">Discussion Board</h1>
+                        </div>
                     </div>
                 </div>
               </main>
