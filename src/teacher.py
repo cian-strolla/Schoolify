@@ -207,11 +207,39 @@ if http_cookie_header:
                         events_table += "</tr>"
                     connection.commit()
                     cursor.close()
-                    connection.close()
 
                     student_firstname = ''
                     student_lastname = ''
                     student_id = ''
+
+                    # Discussion
+
+                    printer = ""
+                    teacher_id = session_store['id']
+                    cursor = connection.cursor(db.cursors.DictCursor)
+
+                    cursor.execute("""SELECT * FROM discussion_board WHERE sender_id = %s""" % (teacher_id))
+
+                    for row in cursor.fetchall():
+                        receiver_id = row["receiver_id"]
+                        cursor2 = connection.cursor(db.cursors.DictCursor)
+                        cursor2.execute("SELECT * FROM parents WHERE id = %s" % (receiver_id))
+
+                        for row in cursor2.fetchall():
+                            parent_firstname = row["first_name"]
+                        cursor2.close()
+                        printer += "<tr>"
+                        printer += "<td>"
+                        printer += parent_firstname
+                        printer += "</td>"
+                        printer += "<td>"
+                        printer += "Click to open"
+                        printer += "</td>"
+                        printer += "</tr>"
+                    connection.commit()
+                    cursor.close()
+                    connection.close()
+
 
                 except db.Error:
                     result = '<p>Sorry! We are experiencing problems at the moment. Please call back later.</p>'
@@ -425,6 +453,7 @@ if http_cookie_header:
                             print('Location: teacher.py#homework')
 
                         connection.close()
+
 
                     except db.Error:
                         result = '<p>Sorry! We are experiencing problems at the moment. Please call back later.</p>'
@@ -827,6 +856,19 @@ print("""
                         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
                             <h1 class="h2">Discussion Board</h1>
                         </div>
+                        <div id="conversations">
+                            <table>
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th class="active_conversations" scope="col">Active Conversations</th>
+                                        <th class="visit_conversation" scope="col">Visit Conversation</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    %s
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
               </main>
@@ -848,4 +890,4 @@ print("""
       list(student_specific_attendance_dict.keys())[0], list(student_specific_attendance_dict.values())[0],\
       list(student_specific_attendance_dict.keys())[1], list(student_specific_attendance_dict.values())[1],\
       list(student_specific_attendance_dict.keys())[2], list(student_specific_attendance_dict.values())[2],\
-      class_points_table, student_specific_points, student_specific_points_graph, homework_table, student_id, events_table))
+      class_points_table, student_specific_points, student_specific_points_graph, homework_table, student_id, events_table, printer))
