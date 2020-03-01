@@ -11,6 +11,7 @@ from shelve import open
 from http.cookies import SimpleCookie
 from os import environ
 from html import escape
+import cgi, cgitb
 
 
 no_student_JSAlert=''
@@ -313,9 +314,11 @@ if http_cookie_header:
                         except:
                             points_reason_input = ''
                         try:
-                            points_id_input = escape(form_data.getfirst('points-id-input'))
+                            if file_upload.has_key('filename'):
+                                file_upload = form_data['filename'].file
+                            #file_upload = form['filename']
                         except:
-                            points_id_input = ''
+                            file_upload = 'failed'
 
 
                         # UPDATE ATTENDANCE
@@ -497,12 +500,17 @@ if http_cookie_header:
                             except:
                                 student_hw_id = student_id
                             cursor = connection.cursor(db.cursors.DictCursor)
+                            cursor.execute("""SELECT COUNT(*) FROM homework""")
+                            for row in cursor.fetchall():
+                                row_count = row['COUNT(*)']
+                            test2 = """INSERT INTO homework (homework_id, teacher_email, student_id, filename, file_order, result, comments)
+                                            VALUES (4, '%s@gmail.com', %s, '%s', 4, %s, '%s');""" % (teacher_email_name, student_hw_id, file_upload, result_mark, comment)
                             cursor.execute("""INSERT INTO homework (homework_id, teacher_email, student_id, filename, file_order, result, comments)
-                                            VALUES (4, %s, %s, %s, 4, %s, %s);""" %(teacher_email_name, student_hw_id, file_upload, result_mark, comment))
+                                            VALUES (%d, '%s@gmail.com', %s, '%s', 4, %s, '%s');""" % (int(row_count)+1,teacher_email_name, student_hw_id, file_upload, result_mark, comment))
                             connection.commit()
                             cursor.close()
                             connection.close()
-                            print('Location: teacher.py#homework')
+                            print("Location: teacher.py?student_id=%s#homework" % (student_hw_id))
 
                         connection.close()
 
