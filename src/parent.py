@@ -55,6 +55,10 @@ event_id = ''
 attendance_table=''
 attendance_taken=False
 x=''
+child_id_1=''
+child_id_2=''
+child_1_details=''
+child_2_details=''
 
 student_id_to_name_dict={}
 attendance_list=[]
@@ -122,6 +126,25 @@ if http_cookie_header:
                     cursor.close()
 
                     # ATTENDANCE
+
+                    # get the childrens id's
+                    cursor = connection.cursor(db.cursors.DictCursor)
+                    cursor.execute("""SELECT * FROM parents
+                                            WHERE id = %s""" % (parent_id))
+                    fetched = cursor.fetchone()
+                    child_id_1=fetched['child1']
+                    child_id_2=fetched['child2']
+                    cursor.close()
+
+                    cursor = connection.cursor(db.cursors.DictCursor)
+                    cursor.execute("""SELECT * FROM students
+                                            WHERE student_id=%s or student_id=%s""" % (child_id_1, child_id_2))
+
+                    fetched=cursor.fetchall()
+                    child_1_details = fetched[0]
+                    child_2_details = fetched[1]
+                    cursor.close()
+
                     cursor = connection.cursor(db.cursors.DictCursor)
                     cursor.execute("""SELECT * FROM students
                                             WHERE class = '1'""")
@@ -720,6 +743,8 @@ print("""
 
 
                     </div>
+
+                    <!-- PERSONAL INFO -->
                     <div class="col-md-8" id="personal-info">
                         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
                             <h1 class="h2">Personal Information</h1>
@@ -743,7 +768,7 @@ print("""
 
                     <div id="attendance">
                         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-                            <h1 class="h2">Attendance for %s %s</h1>
+                            <h1 class="h2">Attendance for Your Children</h1>
                         </div>
 
                       <table>
@@ -881,7 +906,6 @@ print("""
      list(daily_attendance_dict.keys())[1], list(daily_attendance_dict.values())[1],\
      list(daily_attendance_dict.keys())[2], list(daily_attendance_dict.values())[2],\
      attendance_table, personal_info, \
-      student_firstname, student_lastname,\
       list(student_specific_attendance_dict.keys())[0], list(student_specific_attendance_dict.values())[0],\
       list(student_specific_attendance_dict.keys())[1], list(student_specific_attendance_dict.values())[1],\
       list(student_specific_attendance_dict.keys())[2], list(student_specific_attendance_dict.values())[2],\
