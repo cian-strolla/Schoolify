@@ -38,9 +38,14 @@ points_reason = ''
 points_date = ''
 points_chart = ''
 points = 0
+points_total = 0
 points_string = ''
 student_specific_points_graph = ''
 student_specific_points_graph_script = ''
+points_id_input = ''
+points_input = ''
+points_reason_input = ''
+
 # SCHEDULE
 current_class = ''
 events_table = ''
@@ -299,6 +304,18 @@ if http_cookie_header:
                             file_upload = escape(form_data.getfirst('filename'))
                         except:
                             file_upload = ''
+                        try:
+                            points_input = escape(form_data.getfirst('points-input'))
+                        except:
+                            points_input = ''
+                        try:
+                            points_reason_input = escape(form_data.getfirst('points-reason-input'))
+                        except:
+                            points_reason_input = ''
+                        try:
+                            points_id_input = escape(form_data.getfirst('points-id-input'))
+                        except:
+                            points_id_input = ''
 
 
                         # UPDATE ATTENDANCE
@@ -380,6 +397,7 @@ if http_cookie_header:
 
                             cursor.close()
 
+
                             # STUDENT_SPECIFIC POINTS
                             student_specific_points += """<div id="student-specific-points"class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
                                                             <h1 class="h2">""" + student_firstname + """\'s Points</h1>
@@ -434,6 +452,21 @@ if http_cookie_header:
                                                     </tr>""" % (str(week),student_id, row['filename'], str(row['result']), row['comments'])
                                 week+=1
                             cursor.close()
+
+                        # POINTS
+                        if points_input != '':
+                            cursor = connection.cursor(db.cursors.DictCursor)
+                            cursor.execute("""INSERT INTO `points_reasons` (`student_id`, `reason_date`, `reason`, `points`, `class`) VALUES ('%s', '%s', '%s', '%s', '%s')""" % (points_id_input,today,points_reason_input,points_input,current_class))
+                            connection.commit()
+                            cursor.execute("""SELECT * FROM points_total WHERE student_id=%s""" % points_id_input)
+                            if cursor.rowcount != 0:
+                                for row in cursor.fetchall():
+                                    points_total = int(row['points'])
+                                    points_total += int(points_input)
+                                cursor.execute("""UPDATE points_total SET points=%s WHERE student_id=%s""" % (points_total, points_id_input))
+                                connection.commit()
+                            cursor.close()
+                            print('Location: teacher.py#points')
 
                         # SCHEDULE
                         if event_date_input != '':
@@ -807,6 +840,18 @@ print("""
                             %s
                           </tbody>
                         </table>
+                        <div class="points-input">
+                        <form action="teacher.py" method="post" class="points-input-form">
+                            <h1>Give Points</h1>
+                            <label for="points-id-input" class="sr-only">Student ID</label>
+                            <input name="points-id-input" type="text" id="points-id-input" class="form-control" placeholder="Student-ID" required autofocus>
+                            <label for="points-reason-input" class="sr-only">Reason</label>
+                            <input name="points-reason-input" type="text" id="points-reason-input" class="form-control" placeholder="Reason" required autofocus>
+                            <label for="points-input" class="sr-only">Points</label>
+                            <input name="points-input"type="text" id="points-input" class="form-control" placeholder="Points" required>
+                            <button class="landing btn btn-lg btn-primary btn-block" type="submit">Give Points</button>
+                        </form>
+                        </div>
                         %s
                         <div id="chartContainer1"></div>
                         %s
@@ -879,6 +924,7 @@ print("""
                             </tbody>
                             </table>
                         </div>
+                        %s
 
                     </div>
                     <div id="discussion">
@@ -922,4 +968,4 @@ print("""
       list(student_specific_attendance_dict.keys())[0], list(student_specific_attendance_dict.values())[0],\
       list(student_specific_attendance_dict.keys())[1], list(student_specific_attendance_dict.values())[1],\
       list(student_specific_attendance_dict.keys())[2], list(student_specific_attendance_dict.values())[2],\
-      class_points_table, student_specific_points, student_specific_points_graph, homework_table, student_id, events_table, printer))
+      class_points_table, student_specific_points, student_specific_points_graph, homework_table, student_id, events_table, points_total, printer))
