@@ -196,6 +196,7 @@ if http_cookie_header:
                     cursor.execute("""SELECT * FROM students where student_id in (SELECT student_id FROM student_parent WHERE parent_id=%s)"""% parent_id)
 
                     for row in cursor.fetchall():
+                        points = 0
                         student_firstname = row['first_name']
                         student_id = str(row['student_id'])
                         student_specific_points += """<div id="student-specific-points"class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
