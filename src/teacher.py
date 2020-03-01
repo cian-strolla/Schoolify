@@ -217,9 +217,19 @@ if http_cookie_header:
                     printer = ""
                     counter = 0
                     teacher_id = session_store['id']
+                    parentfname = []
+                    cursor3 = connection.cursor(db.cursors.DictCursor)
+                    cursor3.execute("SELECT * FROM parents")
+
+                    for row in cursor3.fetchall():
+                        parentfname.append(row['first_name'])
+                    cursor3.close()
+
+                    parentfname = ['Ben', 'Rachel', 'Nora']
+
                     cursor = connection.cursor(db.cursors.DictCursor)
 
-                    cursor.execute("""SELECT * FROM discussion_board WHERE sender_id = %s""" % (teacher_id))
+                    cursor.execute("""SELECT * FROM discussion_board WHERE sender_id = %s OR receiver_id = %s""" % (teacher_id, teacher_id))
 
                     for row in cursor.fetchall():
                         counter += 1
@@ -231,14 +241,18 @@ if http_cookie_header:
                         for row in cursor2.fetchall():
                             parent_firstname = row["first_name"]
                         cursor2.close()
-                        printer += "<tr>"
-                        printer += "<td>"
-                        printer += parent_firstname
-                        printer += "</td>"
-                        printer += "<td>"
-                        printer += "<button class='discussion_buttons' onclick='displayDiscussion(%s)'>Click to open</button>" % (counter)
-                        printer += "</td>"
-                        printer += "</tr>"
+
+                        if counter > len(parentfname):
+                            printer += ""
+                        else:
+                            printer += "<tr>"
+                            printer += "<td>"
+                            printer += parentfname[counter-1]
+                            printer += "</td>"
+                            printer += "<td>"
+                            printer += "<button class='discussion_buttons' onclick='displayDiscussion(%s)'>Click to open</button>" % (counter)
+                            printer += "</td>"
+                            printer += "</tr>"
                         printer += "<p hidden id=sender_id+%s>%s</p>" % (counter, sender_id)
                         printer += "<p hidden id=receiver_id+%s>%s</p>" % (counter, receiver_id)
                     connection.commit()

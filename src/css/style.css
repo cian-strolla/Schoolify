@@ -88,7 +88,7 @@ body {
     padding: .5rem;
     color: white;
     background-color: #581D59;
-    
+
 }
 .nav a{
   color: white;
@@ -200,4 +200,19 @@ canvas {
 }
 .search_bar{
   margin-bottom: 10px;
+}
+
+#discussion_table {
+  margin-top: 1em;
+  width: 50%;
+  border-collapse: collapse;
+}
+
+.sendername, .message, .timestamp {
+  padding: 1em;
+}
+
+#discussion_header {
+  background-color: #581D59;
+  color: white;
 }
