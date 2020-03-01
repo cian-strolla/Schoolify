@@ -82,6 +82,8 @@ body {
   margin-left: 0;
   padding-left: 0;
   background-color: #581D59;
+  height: 100%;
+  position: fixed;
 }
 .nav li {
     font-size: 1.5rem;
@@ -148,6 +150,11 @@ td, th {
   width: 30%;
   float:right;
   margin-right: 4em;
+}
+
+.points-input {
+  display: block;
+  width: 30%;
 }
 
 .events-table .date {
