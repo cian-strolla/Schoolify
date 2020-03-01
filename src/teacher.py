@@ -672,10 +672,6 @@ print("""
                   <a class="#nav-link" href="#personal-info">Personal Information</a>
                 </li>
                 <li>
-                  <i class="fas fa-copy"></i>
-                  <a class="#nav-link" href="#term-reports">Term Reports</a>
-                </li>
-                <li>
                   <i class="fas fa-clock"></i>
                   <a class="#nav-link" href="#attendance">Attendance</a>
                 </li>
@@ -770,9 +766,6 @@ print("""
                         </table>
                     </div>
 
-                    <div id="term-reports">
-                        <p>Test2</p>
-                    </div>
 
                     <div id="attendance">
                         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
