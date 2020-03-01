@@ -245,7 +245,7 @@ if http_cookie_header:
                                                                 });
                                                                 chart""" + student_id + """.render();"""
 
-                        student_specific_points_graph += "<div id=\"chartContainer2\"></div>"
+                        student_specific_points_graph += "<div id=\"chartContainer" + student_id + "\" class=\"chartContainer\"></div>"
 
                     cursor.close()
 
