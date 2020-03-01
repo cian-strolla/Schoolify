@@ -924,7 +924,6 @@ print("""
                             </tbody>
                             </table>
                         </div>
-                        %s
 
                     </div>
                     <div id="discussion">
@@ -968,4 +967,4 @@ print("""
       list(student_specific_attendance_dict.keys())[0], list(student_specific_attendance_dict.values())[0],\
       list(student_specific_attendance_dict.keys())[1], list(student_specific_attendance_dict.values())[1],\
       list(student_specific_attendance_dict.keys())[2], list(student_specific_attendance_dict.values())[2],\
-      class_points_table, student_specific_points, student_specific_points_graph, homework_table, student_id, events_table, points_total, printer))
+      class_points_table, student_specific_points, student_specific_points_graph, homework_table, student_id, events_table, printer))
