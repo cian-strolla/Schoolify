@@ -59,6 +59,10 @@ event_id = ''
 attendance_table=''
 attendance_taken=False
 x=''
+child_id_1=''
+child_id_2=''
+child_1_details=''
+child_2_details=''
 
 student_id_to_name_dict={}
 attendance_list=[]
@@ -85,6 +89,7 @@ if http_cookie_header:
                 try:
                     teacher_name=session_store['name']
                     current_class = session_store['class']
+                    parent_id = session_store['id']
                     #current_class = int(current_class)
 
                     connection = db.connect('cs1.ucc.ie', 'rjf1', 'ahf1Aeho', '2021_rjf1')
@@ -125,6 +130,69 @@ if http_cookie_header:
                     cursor.close()
 
                     # ATTENDANCE
+
+                     # get the childrens id's
+                    cursor = connection.cursor(db.cursors.DictCursor)
+                    cursor.execute("""SELECT * FROM parents
+                                            WHERE id = %s""" % (parent_id))
+                    fetched = cursor.fetchone()
+                    child_id_1=fetched['child1']
+                    child_id_2=fetched['child2']
+                    cursor.close()
+
+                    cursor = connection.cursor(db.cursors.DictCursor)
+                    cursor.execute("""SELECT * FROM students
+                                            WHERE student_id=%s or student_id=%s""" % (child_id_1, child_id_2))
+
+                    fetched=cursor.fetchall()
+                    child_1_details = fetched[0]
+                    child_2_details = fetched[1]
+                    cursor.close()
+
+                    for child in [child_1_details]:
+                        cursor = connection.cursor(db.cursors.DictCursor)
+                        cursor.execute("""SELECT * FROM classes
+                                                WHERE id=%s""" % (child['class']))
+
+                        temp_counter=0
+                        child_index=0
+                        for id in cursor.fetchone()['student_ids']:
+                            if id==child['student_id']:
+                                child_index=temp_counter
+                            else:
+                                temp_counter += 1
+                        cursor.close()
+
+                        student_specific_attendance_table=''' <div id="attendance">
+                            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+                                <h1 class="h2">Attendance for Your Children %s %s</h1>
+                            </div>
+
+                          <table>
+                            <thead>
+                              <tr>
+                                <th>Date</th>
+                                <th>Attendance</th>
+                              </tr>
+                            </thead>
+                            <tbody>'''
+                        cursor = connection.cursor(db.cursors.DictCursor)
+                        cursor.execute("""SELECT * FROM attendance
+                                                WHERE class=%s and date between '2020-02-05' and '2020-02-07'""" % (child['class']))
+                        for row in cursor.fetchall():
+                            student_specific_attendance_table+='''<tbody>
+                              <tr>
+                                <td>%s</td>
+                                <td>%s</td>
+                              </tr>
+
+                            ''' % (row['date'], row['attendance'].split()[child_index])
+                        cursor.close()
+                        student_specific_attendance_table+='''</tbody>
+                      </table>
+                    </div>'''
+
+
                     cursor = connection.cursor(db.cursors.DictCursor)
                     cursor.execute("""SELECT * FROM students
                                             WHERE class = '1'""")
@@ -774,31 +842,10 @@ print("""
                         </table>
                     </div>
 
+                    <!-- Parent's children's attendance -->
+                    %s
 
-                    <div id="attendance">
-                        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-                            <h1 class="h2">Attendance for %s %s</h1>
-                        </div>
 
-                      <table>
-                          <tr>
-                            <th>Date</th>
-                            <th>Attendance</th>
-                          </tr>
-                          <tr>
-                            <td>%s</td>
-                            <td>%s</td>
-                          </tr>
-                          <tr>
-                            <td>%s</td>
-                            <td>%s</td>
-                          </tr>
-                          <tr>
-                            <td>%s</td>
-                            <td>%s</td>
-                          </tr>
-                      </table>
-                    </div>
 
                     <div id="points">
                         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
@@ -938,8 +985,5 @@ print("""
      list(daily_attendance_dict.keys())[1], list(daily_attendance_dict.values())[1],\
      list(daily_attendance_dict.keys())[2], list(daily_attendance_dict.values())[2],\
      attendance_table, personal_info, \
-      student_firstname, student_lastname,\
-      list(student_specific_attendance_dict.keys())[0], list(student_specific_attendance_dict.values())[0],\
-      list(student_specific_attendance_dict.keys())[1], list(student_specific_attendance_dict.values())[1],\
-      list(student_specific_attendance_dict.keys())[2], list(student_specific_attendance_dict.values())[2],\
+     student_specific_attendance_table,
       class_points_table, student_specific_points, student_specific_points_graph, homework_table, student_id, events_table, printer))
