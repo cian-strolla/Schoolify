@@ -149,6 +149,7 @@ if http_cookie_header:
                     child_2_details = fetched[1]
                     cursor.close()
 
+                    # iterate for each of the parent's children
                     for child in [child_1_details]:
                         cursor = connection.cursor(db.cursors.DictCursor)
                         cursor.execute("""SELECT * FROM classes
@@ -163,11 +164,8 @@ if http_cookie_header:
                                 temp_counter += 1
                         cursor.close()
 
-                        student_specific_attendance_table=''' <div id="attendance">
-                            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-                                <h1 class="h2">Attendance for Your Children %s %s</h1>
-                            </div>
-
+                        student_specific_attendance_table='''
+                            <h2> %s's Attendance </h2>
                           <table>
                             <thead>
                               <tr>
@@ -175,18 +173,25 @@ if http_cookie_header:
                                 <th>Attendance</th>
                               </tr>
                             </thead>
-                            <tbody>'''
+                            <tbody>''' % (child['first_name'])
                         cursor = connection.cursor(db.cursors.DictCursor)
                         cursor.execute("""SELECT * FROM attendance
                                                 WHERE class=%s and date between '2020-02-05' and '2020-02-07'""" % (child['class']))
                         for row in cursor.fetchall():
+                            if list(row['attendance'])[child_index]=='1':
+                                attendance_val='Present'
+                            elif list(row['attendance'])[child_index]=='0':
+                                attendance_val='Absent'
+                            else:
+                                student_specific_attendance_dict[row['date']]='N/A'
+
                             student_specific_attendance_table+='''<tbody>
                               <tr>
                                 <td>%s</td>
                                 <td>%s</td>
                               </tr>
 
-                            ''' % (row['date'], row['attendance'].split()[child_index])
+                            ''' % (row['date'], attendance_val)
                         cursor.close()
                         student_specific_attendance_table+='''</tbody>
                       </table>
@@ -843,6 +848,10 @@ print("""
                     </div>
 
                     <!-- Parent's children's attendance -->
+                    <div id="attendance">
+                        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+                            <h1 class="h2">Attendance for Your Children</h1>
+                        </div>
                     %s
 
 
