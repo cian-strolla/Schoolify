@@ -86,7 +86,7 @@ body {
   position: fixed;
 }
 .nav li {
-    font-size: 1.5rem;
+    font-size: 1rem;
     padding: .5rem;
     color: white;
     background-color: #581D59;
@@ -141,7 +141,7 @@ td, th {
 #calendar {
   max-width: 900px;
   margin: 20px;
-  width:70%;
+  width:50%;
   display:inline-block;
   float:left;
 }

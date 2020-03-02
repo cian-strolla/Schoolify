@@ -75,8 +75,6 @@ if email != '':
             print('Location: parent.py')
         elif account_type == 2:
             print('Location: teacher.py')
-        else:
-            print('Location: student.py')
     # incorrect username or password
     else:
         result="""<body>
@@ -118,8 +116,6 @@ else:
                     print('Location: parent.py')
                 elif session_store['account_type'] == 2:
                     print('Location: teacher.py')
-                else:
-                    print('Location: student.py')
             #else unauthenticated cookie, display login/signup
             else:
                 result=base_page
