@@ -13,7 +13,7 @@ from os import environ
 from html import escape
 import cgi, cgitb
 
-
+testing = ''
 no_student_JSAlert=''
 result = ''
 today=date.today()
@@ -306,6 +306,10 @@ if http_cookie_header:
                         except:
                             file_upload = ''
                         try:
+                            points_id_input = escape(form_data.getfirst('points-id-input'))
+                        except:
+                            points_id_input = ''
+                        try:
                             points_input = escape(form_data.getfirst('points-input'))
                         except:
                             points_input = ''
@@ -466,6 +470,7 @@ if http_cookie_header:
                                 for row in cursor.fetchall():
                                     points_total = int(row['points'])
                                     points_total += int(points_input)
+                                    testing = "ngiejfivbf"
                                 cursor.execute("""UPDATE points_total SET points=%s WHERE student_id=%s""" % (points_total, points_id_input))
                                 connection.commit()
                             cursor.close()
@@ -931,6 +936,7 @@ print("""
                                 %s
                             </tbody>
                             </table>
+                            %s
                         </div>
 
                     </div>
@@ -975,4 +981,4 @@ print("""
       list(student_specific_attendance_dict.keys())[0], list(student_specific_attendance_dict.values())[0],\
       list(student_specific_attendance_dict.keys())[1], list(student_specific_attendance_dict.values())[1],\
       list(student_specific_attendance_dict.keys())[2], list(student_specific_attendance_dict.values())[2],\
-      class_points_table, student_specific_points, student_specific_points_graph, homework_table, student_id, events_table, printer))
+      class_points_table, student_specific_points, student_specific_points_graph, homework_table, student_id, events_table, points_id_input, printer))
