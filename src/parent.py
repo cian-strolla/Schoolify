@@ -59,6 +59,7 @@ child_id_1=''
 child_id_2=''
 child_1_details=''
 child_2_details=''
+all_children_attendance_table=''
 
 student_id_to_name_dict={}
 attendance_list=[]
@@ -146,7 +147,7 @@ if http_cookie_header:
                     cursor.close()
 
                     # iterate for each of the parent's children
-                    for child in [child_1_details]:
+                    for child in [child_1_details, child_2_details]:
                         cursor = connection.cursor(db.cursors.DictCursor)
                         cursor.execute("""SELECT * FROM classes
                                                 WHERE id=%s""" % (child['class']))
@@ -189,9 +190,9 @@ if http_cookie_header:
                             ''' % (row['date'], attendance_val)
                         cursor.close()
                         student_specific_attendance_table+='''</tbody>
-                                                        </table>
-                                                    </div>'''
+                                                        </table>'''
 
+                        all_children_attendance_table+=student_specific_attendance_table
                     cursor = connection.cursor(db.cursors.DictCursor)
                     cursor.execute("""SELECT * FROM students
                                             WHERE class = '1'""")
@@ -819,6 +820,7 @@ print("""
                             <h1 class="h2">Attendance for Your Children</h1>
                         </div>
                     %s
+                    </div>
 
                     <div id="points">
                         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
@@ -935,6 +937,6 @@ print("""
      list(daily_attendance_dict.keys())[1], list(daily_attendance_dict.values())[1],\
      list(daily_attendance_dict.keys())[2], list(daily_attendance_dict.values())[2],\
      attendance_table, personal_info, \
-      student_specific_attendance_table, \
+      all_children_attendance_table, \
       class_points_table, student_specific_points, student_specific_points_graph, homework_table, student_id,\
        events_table, printer))
