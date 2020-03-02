@@ -11,12 +11,13 @@ from shelve import open
 from http.cookies import SimpleCookie
 from os import environ
 from html import escape
-import cgi, cgitb
 
 
 no_student_JSAlert=''
 result = ''
 today=date.today()
+parent_id = ''
+
 # PERSONAL IFNO
 student_firstname = ''
 student_lastname = ''
@@ -39,14 +40,9 @@ points_reason = ''
 points_date = ''
 points_chart = ''
 points = 0
-points_total = 0
 points_string = ''
 student_specific_points_graph = ''
 student_specific_points_graph_script = ''
-points_id_input = ''
-points_input = ''
-points_reason_input = ''
-
 # SCHEDULE
 current_class = ''
 events_table = ''
@@ -95,7 +91,7 @@ if http_cookie_header:
                     connection = db.connect('cs1.ucc.ie', 'rjf1', 'ahf1Aeho', '2021_rjf1')
                     # PERSONAL INFO
                     cursor = connection.cursor(db.cursors.DictCursor)
-                    cursor.execute("""SELECT * FROM students where class=%s"""% current_class)
+                    cursor.execute("""SELECT * FROM students where student_id in (SELECT student_id FROM student_parent WHERE parent_id=%s)"""% parent_id)
 
                     for row in cursor.fetchall():
                         student_id = str(row['student_id'])
@@ -131,7 +127,7 @@ if http_cookie_header:
 
                     # ATTENDANCE
 
-                     # get the childrens id's
+                    # get the childrens id's
                     cursor = connection.cursor(db.cursors.DictCursor)
                     cursor.execute("""SELECT * FROM parents
                                             WHERE id = %s""" % (parent_id))
@@ -148,55 +144,6 @@ if http_cookie_header:
                     child_1_details = fetched[0]
                     child_2_details = fetched[1]
                     cursor.close()
-
-                    # iterate for each of the parent's children
-                    for child in [child_1_details]:
-                        cursor = connection.cursor(db.cursors.DictCursor)
-                        cursor.execute("""SELECT * FROM classes
-                                                WHERE id=%s""" % (child['class']))
-
-                        temp_counter=0
-                        child_index=0
-                        for id in cursor.fetchone()['student_ids']:
-                            if id==child['student_id']:
-                                child_index=temp_counter
-                            else:
-                                temp_counter += 1
-                        cursor.close()
-
-                        student_specific_attendance_table='''
-                            <h2> %s's Attendance </h2>
-                          <table>
-                            <thead>
-                              <tr>
-                                <th>Date</th>
-                                <th>Attendance</th>
-                              </tr>
-                            </thead>
-                            <tbody>''' % (child['first_name'])
-                        cursor = connection.cursor(db.cursors.DictCursor)
-                        cursor.execute("""SELECT * FROM attendance
-                                                WHERE class=%s and date between '2020-02-05' and '2020-02-07'""" % (child['class']))
-                        for row in cursor.fetchall():
-                            if list(row['attendance'])[child_index]=='1':
-                                attendance_val='Present'
-                            elif list(row['attendance'])[child_index]=='0':
-                                attendance_val='Absent'
-                            else:
-                                student_specific_attendance_dict[row['date']]='N/A'
-
-                            student_specific_attendance_table+='''<tbody>
-                              <tr>
-                                <td>%s</td>
-                                <td>%s</td>
-                              </tr>
-
-                            ''' % (row['date'], attendance_val)
-                        cursor.close()
-                        student_specific_attendance_table+='''</tbody>
-                      </table>
-                    </div>'''
-
 
                     cursor = connection.cursor(db.cursors.DictCursor)
                     cursor.execute("""SELECT * FROM students
@@ -246,7 +193,7 @@ if http_cookie_header:
 
                     # POINTS
                     cursor = connection.cursor(db.cursors.DictCursor)
-                    cursor.execute("""SELECT * FROM points_total WHERE class=%s""" % (current_class))
+                    cursor.execute("""SELECT * FROM points_total WHERE student_id in (SELECT student_id from student_parent WHERE parent_id=%s)""" % (parent_id))
                     result = current_class
                     for row in cursor.fetchall():
                         student_id = str(row['student_id'])
@@ -266,6 +213,67 @@ if http_cookie_header:
                     connection.commit()
                     cursor.close()
 
+                    # STUDENT_SPECIFIC POINTS
+
+                    cursor = connection.cursor(db.cursors.DictCursor)
+                    cursor.execute("""SELECT * FROM students where student_id in (SELECT student_id FROM student_parent WHERE parent_id=%s)"""% parent_id)
+
+                    for row in cursor.fetchall():
+                        points = 0
+                        student_firstname = row['first_name']
+                        student_id = str(row['student_id'])
+                        student_specific_points += """<div id="student-specific-points"class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+                                                        <h1 class="h2">""" + student_firstname + """\'s Points</h1>
+                                                    </div>"""
+                        student_specific_points += """<table class="table table-hover reasons-table">
+                                                      <thead class="thead-dark">
+                                                        <tr>
+                                                          <th class="date" scope="col">Date</th>
+                                                          <th class="event" scope="col">Reason</th>
+                                                        </tr>
+                                                      </thead>
+                                                      <tbody>"""
+                        student_specific_points_graph_script += """var chart""" + student_id + """ = new CanvasJS.Chart(\"chartContainer""" + student_id + """\", {
+                                                                        animationEnabled: true,
+                                                                        theme: "light2",
+                                                                        title:{
+                                                                            text: \"""" + student_firstname + """ \'s Points History\"
+                                                                        },
+                                                                        axisY:{
+                                                                            title: "Total Points",
+                                                                            includeZero: false
+                                                                        },
+                                                                        data: [{
+                                                                        		type: "line",
+                                                                              	indexLabelFontSize: 16,
+                                                                        		dataPoints: [{ y: 0, label: \" \", }, """
+                                #{ y: 0, label: \" \", },"""
+                        cursor2 = connection.cursor(db.cursors.DictCursor)
+                        cursor2.execute("""SELECT * FROM points_reasons WHERE student_id = %s ORDER BY reason_date""" % (student_id))
+                        for row2 in cursor2.fetchall():
+                            points_date = str(row2['reason_date'])
+                            points_reason = row2['reason']
+                            points += int(row2['points'])
+                            points_string = str(points)
+                            student_specific_points += "<tr>"
+                            student_specific_points += "<td>" + points_date + "</td>"
+                            student_specific_points += "<td>" + points_reason + "</td>"
+                            student_specific_points += "</tr>"
+                            student_specific_points_graph_script += "{ y: " + points_string +", label: \"" + points_date + " \", },"
+
+                        student_specific_points += """</tbody>
+                                                    </table>"""
+                        student_specific_points_graph_script += """
+                                                                            ]
+                                                                    }]
+                                                                });
+                                                                chart""" + student_id + """.render();"""
+
+                        student_specific_points_graph += "<div id=\"chartContainer" + student_id + "\" class=\"chartContainer\"></div>"
+
+                    cursor.close()
+
+
                     # SCHEDULE
 
                     cursor = connection.cursor(db.cursors.DictCursor)
@@ -278,11 +286,6 @@ if http_cookie_header:
                         events_table += "<tr>"
                         events_table += "<td>" + event_date + "</td>"
                         events_table += "<td>" + event_description + "</td>"
-                        events_table +="""<td>
-                                            <form action="deleteEvent.py" method="post">
-                                                <button name="delete-button" value=\"""" + event_id + """\" class=\"delete-button" type=\"submit\">Delete</button>
-                                            </form>
-                                        </td>"""
                         events_table += "</tr>"
                     connection.commit()
                     cursor.close()
@@ -296,19 +299,9 @@ if http_cookie_header:
                     printer = ""
                     counter = 0
                     teacher_id = session_store['id']
-                    parentfname = []
-                    cursor3 = connection.cursor(db.cursors.DictCursor)
-                    cursor3.execute("SELECT * FROM parents")
-
-                    for row in cursor3.fetchall():
-                        parentfname.append(row['first_name'])
-                    cursor3.close()
-
-                    parentfname = ['Ben', 'Rachel', 'Nora']
-
                     cursor = connection.cursor(db.cursors.DictCursor)
 
-                    cursor.execute("""SELECT * FROM discussion_board WHERE sender_id = %s OR receiver_id = %s""" % (teacher_id, teacher_id))
+                    cursor.execute("""SELECT * FROM discussion_board WHERE sender_id = %s""" % (teacher_id))
 
                     for row in cursor.fetchall():
                         counter += 1
@@ -320,18 +313,14 @@ if http_cookie_header:
                         for row in cursor2.fetchall():
                             parent_firstname = row["first_name"]
                         cursor2.close()
-
-                        if counter > len(parentfname):
-                            printer += ""
-                        else:
-                            printer += "<tr>"
-                            printer += "<td>"
-                            printer += parentfname[counter-1]
-                            printer += "</td>"
-                            printer += "<td>"
-                            printer += "<button class='discussion_buttons' onclick='displayDiscussion(%s)'>Click to open</button>" % (counter)
-                            printer += "</td>"
-                            printer += "</tr>"
+                        printer += "<tr>"
+                        printer += "<td>"
+                        printer += parent_firstname
+                        printer += "</td>"
+                        printer += "<td>"
+                        printer += "<button class='discussion_buttons' onclick='displayDiscussion(%s)'>Click to open</button>" % (counter)
+                        printer += "</td>"
+                        printer += "</tr>"
                         printer += "<p hidden id=sender_id+%s>%s</p>" % (counter, sender_id)
                         printer += "<p hidden id=receiver_id+%s>%s</p>" % (counter, receiver_id)
                     connection.commit()
@@ -355,14 +344,6 @@ if http_cookie_header:
                         except:
                             student_id = ''
                         try:
-                            event_date_input = escape(form_data.getfirst('event-date-input'))
-                        except:
-                            event_date_input = ''
-                        try:
-                            event_descrition_input = escape(form_data.getfirst('event-description-input'))
-                        except:
-                            event_descrition_input = ''
-                        try:
                             student_1_attendance = escape(form_data.getfirst('optradio1'))
                         except:
                             student_1_attendance = '2'
@@ -378,20 +359,6 @@ if http_cookie_header:
                             file_upload = escape(form_data.getfirst('filename'))
                         except:
                             file_upload = ''
-                        try:
-                            points_input = escape(form_data.getfirst('points-input'))
-                        except:
-                            points_input = ''
-                        try:
-                            points_reason_input = escape(form_data.getfirst('points-reason-input'))
-                        except:
-                            points_reason_input = ''
-                        try:
-                            if file_upload.has_key('filename'):
-                                file_upload = form_data['filename'].file
-                            #file_upload = form['filename']
-                        except:
-                            file_upload = 'failed'
 
 
                         # UPDATE ATTENDANCE
@@ -410,10 +377,10 @@ if http_cookie_header:
                             personal_info = ''
                             cursor = connection.cursor(db.cursors.DictCursor)
                             cursor.execute("""SELECT * FROM students
-                                            WHERE student_id = %s""" % (student_id))
+                                            WHERE student_id = %s and student_id IN (SELECT student_id FROM student_parent WHERE parent_id=%s)""" % (student_id, parent_id))
                             fetched = cursor.fetchall()
                             if len(fetched)==0:
-                                no_student_JSAlert='alert("Student Doesn\'t Exist. Search for a Valid Student ID.");'
+                                no_student_JSAlert='alert("This Isn\'t Your Child\'s Student ID. Search for a Valid Student ID.");'
                             else:
                                 for row in fetched:
                                     student_id = str(row['student_id'])
@@ -474,38 +441,6 @@ if http_cookie_header:
                             cursor.close()
 
 
-                            # STUDENT_SPECIFIC POINTS
-                            student_specific_points += """<div id="student-specific-points"class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-                                                            <h1 class="h2">""" + student_firstname + """\'s Points</h1>
-                                                        </div>"""
-                            student_specific_points += """<table class="table table-hover reasons-table">
-                                                          <thead class="thead-dark">
-                                                            <tr>
-                                                              <th class="date" scope="col">Date</th>
-                                                              <th class="event" scope="col">Reason</th>
-                                                            </tr>
-                                                          </thead>
-                                                          <tbody>"""
-                            cursor = connection.cursor(db.cursors.DictCursor)
-                            cursor.execute("""SELECT * FROM points_reasons WHERE student_id = %s ORDER BY reason_date""" % (student_id))
-                            for row in cursor.fetchall():
-                                points_date = str(row['reason_date'])
-                                points_reason = row['reason']
-                                points += int(row['points'])
-                                points_string = str(points)
-                                student_specific_points += "<tr>"
-                                student_specific_points += "<td>" + points_date + "</td>"
-                                student_specific_points += "<td>" + points_reason + "</td>"
-                                student_specific_points += "</tr>"
-                                student_specific_points_graph_script += "{ y: " + points_string +", label: \"" + points_date + " \", },"
-                            cursor.close()
-
-                            student_specific_points += """</tbody>
-                                                        </table>"""
-
-                            student_specific_points_graph += "<div id=\"chartContainer2\"></div>"
-
-
                             # HOMEWORK
                             cursor = connection.cursor(db.cursors.DictCursor)
                                 # currently using a workaround where instead of sending the eamil of teacher_name
@@ -529,34 +464,27 @@ if http_cookie_header:
                                 week+=1
                             cursor.close()
 
-                        # POINTS
-                        if points_input != '':
+                        # HOMEWORK
+                        if file_upload != '':
+                            try:
+                                result_mark = escape(form_data.getfirst('result'))
+                            except:
+                                result_mark = ''
+                            try:
+                                comment = escape(form_data.getfirst('comments'))
+                            except:
+                                comment = ''
+                            try:
+                                student_hw_id = escape(form_data.getfirst('student-id'))
+                            except:
+                                student_hw_id = student_id
                             cursor = connection.cursor(db.cursors.DictCursor)
-                            cursor.execute("""INSERT INTO `points_reasons` (`student_id`, `reason_date`, `reason`, `points`, `class`) VALUES ('%s', '%s', '%s', '%s', '%s')""" % (points_id_input,today,points_reason_input,points_input,current_class))
-                            connection.commit()
-                            cursor.execute("""SELECT * FROM points_total WHERE student_id=%s""" % points_id_input)
-                            if cursor.rowcount != 0:
-                                for row in cursor.fetchall():
-                                    points_total = int(row['points'])
-                                    points_total += int(points_input)
-                                cursor.execute("""UPDATE points_total SET points=%s WHERE student_id=%s""" % (points_total, points_id_input))
-                                connection.commit()
-                            cursor.close()
-                            print('Location: parent.py#points')
-
-                        # SCHEDULE
-                        if event_date_input != '':
-                            cursor = connection.cursor(db.cursors.DictCursor)
-                            cursor.execute("""INSERT INTO `calendar` (`id`, `class`, `event_date`, `event_description`) VALUES (NULL, '%s', '%s', '%s');""" % (current_class, event_date_input, event_descrition_input))
+                            cursor.execute("""INSERT INTO homework (homework_id, teacher_email, student_id, filename, file_order, result, comments)
+                                            VALUES (4, %s, %s, %s, 4, %s, %s);""" %(teacher_email_name, student_hw_id, file_upload, result_mark, comment))
                             connection.commit()
                             cursor.close()
                             connection.close()
-                            print('Location: parent.py#schedule')
-
-                        # commenting this out prevents the website from being redirected to
-                        # teacher.py just after entering a student id
-
-                        # print('Location: teacher.py')
+                            print('Location: parent.py#homework')
 
                         connection.close()
 
@@ -573,7 +501,7 @@ else:
     print('Location: login.py')
 if not attendance_taken:
     attendance_table=attendance_table="""<h1>Take Daily Attendance</h1>
-    <form action="parnet.py" onsubmit="post();return false;">
+    <form action="parent.py" onsubmit="post();return false;">
     <table class="table table-hover">
       <thead class="thead-dark">
         <tr>
@@ -679,24 +607,7 @@ print("""
         });
         chart1.render();
 
-        var chart2 = new CanvasJS.Chart("chartContainer2", {
-            animationEnabled: true,
-            theme: "light2",
-            title:{
-                text: "%s\'s Points History"
-            },
-            axisY:{
-                title: "Total Points",
-                includeZero: false
-            },
-            data: [{
-                type: "line",
-                dataPoints: [
-                    { y: 0, label: \" \", }, %s
-                ]
-            }]
-        });
-        chart2.render();
+        %s
 
         }
         </script>
@@ -744,6 +655,12 @@ print("""
                 </li>
 
                 <!--Search Form-->
+                <li class="search_bar">
+                    <form class="form-inline d-flex justify-content-center md-form form-sm mt-0" action="parent.py" method="get">
+                        <i class="fas fa-search" aria-hidden="true"></i>
+                        <input class="form-control form-control-sm ml-3 w-75" name="student_id" value="%s" type="text" placeholder="Student ID" aria-label="Search">
+                    </form>
+                </li>
                 <li>
                   <!--<div class="row col-md-2" id="top-row">Student</div>               -->
                   Student: <strong>%s %s</strong>
@@ -788,7 +705,7 @@ print("""
 
                               <div class="align-items-end profile-header-container">
     		                    <div class="profile-header-img">
-                                    <img class="img-circle" src="./assets/parent/rachel.jpg" />
+                                    <img class="img-circle" src="./assets/teacher/5.jpg" />
                                 </div>
                                </div>
                           </div>
@@ -826,6 +743,8 @@ print("""
 
 
                     </div>
+
+                    <!-- PERSONAL INFO -->
                     <div class="col-md-8" id="personal-info">
                         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
                             <h1 class="h2">Personal Information</h1>
@@ -847,14 +766,30 @@ print("""
                         </table>
                     </div>
 
-                    <!-- Parent's children's attendance -->
                     <div id="attendance">
                         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
                             <h1 class="h2">Attendance for Your Children</h1>
                         </div>
-                    %s
 
-
+                      <table>
+                          <tr>
+                            <th>Date</th>
+                            <th>Attendance</th>
+                          </tr>
+                          <tr>
+                            <td>%s</td>
+                            <td>%s</td>
+                          </tr>
+                          <tr>
+                            <td>%s</td>
+                            <td>%s</td>
+                          </tr>
+                          <tr>
+                            <td>%s</td>
+                            <td>%s</td>
+                          </tr>
+                      </table>
+                    </div>
 
                     <div id="points">
                         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
@@ -871,18 +806,6 @@ print("""
                             %s
                           </tbody>
                         </table>
-                        <div class="points-input">
-                        <form action="parent.py" method="post" class="points-input-form">
-                            <h1>Give Points</h1>
-                            <label for="points-id-input" class="sr-only">Student ID</label>
-                            <input name="points-id-input" type="text" id="points-id-input" class="form-control" placeholder="Student-ID" required autofocus>
-                            <label for="points-reason-input" class="sr-only">Reason</label>
-                            <input name="points-reason-input" type="text" id="points-reason-input" class="form-control" placeholder="Reason" required autofocus>
-                            <label for="points-input" class="sr-only">Points</label>
-                            <input name="points-input"type="text" id="points-input" class="form-control" placeholder="Points" required>
-                            <button class="landing btn btn-lg btn-primary btn-block" type="submit">Give Points</button>
-                        </form>
-                        </div>
                         %s
                         <div id="chartContainer1"></div>
                         %s
@@ -930,24 +853,12 @@ print("""
                         </div>
                         <div id='calendar'></div>
 
-                        <div class="event-input">
-                        <form action="parent.py" method="post" class="event-input-form">
-                            <h1>Create an Event</h1>
-                            <label for="event-date-input" class="sr-only">Event Date</label>
-                            <input name="event-date-input" type="text" id="event-date-input" class="form-control" placeholder="YYYY-MM-DD" required autofocus>
-                            <label for="event-description-input" class="sr-only">Description</label>
-                            <input name="event-description-input"type="text" id="event-description-input" class="form-control" placeholder="Description" required>
-                            <button class="landing btn btn-lg btn-primary btn-block" type="submit">Create Event</button>
-                        </form>
-                        </div>
-
                         <div id="events-schedule">
                             <table class="table table-hover events-table">
                               <thead class="thead-dark">
                                 <tr>
                                   <th class="date" scope="col">Date</th>
                                   <th class="event" scope="col">Event</th>
-                                  <th class="delete-button" scope="col"></th>
                                 </tr>
                               </thead>
                               <tbody>
@@ -988,11 +899,15 @@ print("""
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
       </body>
     </html>
-    """ % (points_chart, student_firstname, student_specific_points_graph_script, no_student_JSAlert, student_firstname, student_lastname,\
+    """ % (points_chart, student_specific_points_graph_script,\
+     no_student_JSAlert, student_id, student_firstname, student_lastname,\
     today, teacher_name,\
      list(daily_attendance_dict.keys())[0], list(daily_attendance_dict.values())[0],\
      list(daily_attendance_dict.keys())[1], list(daily_attendance_dict.values())[1],\
      list(daily_attendance_dict.keys())[2], list(daily_attendance_dict.values())[2],\
      attendance_table, personal_info, \
-     student_specific_attendance_table,
-      class_points_table, student_specific_points, student_specific_points_graph, homework_table, student_id, events_table, printer))
+      list(student_specific_attendance_dict.keys())[0], list(student_specific_attendance_dict.values())[0],\
+      list(student_specific_attendance_dict.keys())[1], list(student_specific_attendance_dict.values())[1],\
+      list(student_specific_attendance_dict.keys())[2], list(student_specific_attendance_dict.values())[2],\
+      class_points_table, student_specific_points, student_specific_points_graph, homework_table, student_id,\
+       events_table, printer))
