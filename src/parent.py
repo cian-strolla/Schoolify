@@ -142,20 +142,20 @@ if http_cookie_header:
                                             WHERE student_id=%s or student_id=%s""" % (child_id_1, child_id_2))
 
                     fetched=cursor.fetchall()
-                    child_1_details = fetched[0]
-                    child_2_details = fetched[1]
+                    place_list=[]
+                    id_list=[]
                     cursor.close()
 
                     # iterate for each of the parent's children
-                    for child in [child_1_details, child_2_details]:
+                    for child in fetched:
                         cursor = connection.cursor(db.cursors.DictCursor)
                         cursor.execute("""SELECT * FROM classes
                                                 WHERE id=%s""" % (child['class']))
 
                         temp_counter=0
                         child_index=0
-                        for id in cursor.fetchone()['student_ids']:
-                            if id==child['student_id']:
+                        for id in (cursor.fetchone()['student_ids']).split():
+                            if id==str(child['student_id']):
                                 child_index=temp_counter
                             else:
                                 temp_counter += 1
@@ -820,7 +820,9 @@ print("""
                             <h1 class="h2">Attendance for Your Children</h1>
                         </div>
                     %s
+                    
                     </div>
+
 
                     <div id="points">
                         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
