@@ -449,7 +449,7 @@ if http_cookie_header:
                                 # Changed the file structure for where homework files will be stored to make it easier
                                 homework_table += """<tr>
                                                         <td>Week %s</td>
-                                                        <td><a href="homework/%s/%s" download>Solution</a></td>
+                                                        <td><a href="tests/%s/%s" download>Solution</a></td>
                                                         <td> %s </td>
                                                         <td> %s </td>
                                                     </tr>""" % (str(week),student_id, row['filename'], str(row['result']), row['comments'])
@@ -510,7 +510,7 @@ if http_cookie_header:
                             connection.commit()
                             cursor.close()
                             connection.close()
-                            print("Location: teacher.py?student_id=%s#homework" % (student_hw_id))
+                            print("Location: teacher.py?student_id=%s#tests" % (student_hw_id))
 
                         connection.close()
 
@@ -722,7 +722,7 @@ print("""
                 </li>
                 <li>
                   <i class="fas fa-edit"></i>
-                  <a class="#nav-link" href="#homework">Homework</a>
+                  <a class="#nav-link" href="#tests">Tests</a>
                 </li>
                 <li>
                   <i class="far fa-calendar"></i>
@@ -865,9 +865,9 @@ print("""
                         %s
                     </div>
 
-                    <div id="homework">
+                    <div id="tests">
     					<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-                            <h1 class="h2">Homework</h1>
+                            <h1 class="h2">Tests</h1>
                         </div>
     					<table>
     						<tr>
@@ -881,7 +881,7 @@ print("""
     					</table>
                         <p></p>
                         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-                            <h1 class="h2">Upload homework</h1>
+                            <h1 class="h2">Upload Test</h1>
                         </div>
                         <table>
                             <tr>
