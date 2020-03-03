@@ -211,15 +211,41 @@ canvas {
 
 #discussion_table {
   margin-top: 1em;
-  width: 50%;
   border-collapse: collapse;
 }
 
+#discussion_beginning {
+  margin-bottom: 3em;
+}
+
 .sendername, .message, .timestamp {
-  padding: 1em;
+  padding: .5em;
+  padding-left: 1em;
+  border: none;
 }
 
 #discussion_header {
   background-color: #581D59;
   color: white;
+}
+
+#from_teacher {
+  width: 30%;
+  margin-right: 60%;
+  margin-left: 10%;
+  border-collapse: separate;
+  border: .05em solid black;
+  border-radius: 2em;
+}
+
+#from_parent {
+  width: 30%;
+  margin-left: 60%;
+  border-collapse: separate;
+  border: .05em solid black;
+  border-radius: 2em;
+}
+
+textarea {
+  display: block;
 }

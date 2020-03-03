@@ -37,18 +37,12 @@ mysqli_select_db($con, "2021_rjf1");
 $sql="SELECT * FROM discussion_board WHERE sender_id = '".$q."' AND receiver_id = '".$k."'";
 $result = mysqli_query($con,$sql);
 
-echo "<table id='discussion_table'>
-<tr id='discussion_header'>
-<th class='sendernameh'>Sender Name</th>
-<th class='messageh'>Message</th>
-<th class='timestamph'>Timestamp</th>
-</tr>";
 
 while($row = mysqli_fetch_array($result)) {
   $findsender = $row['sender_id'];
 }
 
-$sql2 = "SELECT * FROM users WHERE id = '".$findsender."'";
+$sql2 = "SELECT * FROM teachers WHERE id = '".$findsender."'";
 $senderfinder = mysqli_query($con,$sql2);
 
 
@@ -61,11 +55,17 @@ $sql3="SELECT * FROM discussion_board WHERE sender_id = '".$q."' AND receiver_id
 $final = mysqli_query($con,$sql3);
 
 while($row = mysqli_fetch_array($final)) {
-    echo "<tr>";
-    echo "<td class='sendername'>" . $senderfname . " " . $senderlname . "</td>";
-    echo "<td class='message'>" . $row['message'] . "</td>";
-    echo "<td class='timestamp'>" . $row['time_stamp'] . "</td>";
-    echo "</tr>";
+  echo "<table id='from_teacher'";
+  echo "<tr>";
+  echo "<th class='sendername'>Sent by: " . $senderfname . " " . $senderlname . "</th>";
+  echo "</tr>";
+  echo "<tr>";
+  echo "<td class='message'>" . $row['message'] . "</td>";
+  echo "</tr>";
+  echo "<tr>";
+  echo "<td class='timestamp'>On: " . $row['time_stamp'] . "</td>";
+  echo "</tr>";
+  echo "</table>";
 }
 
 $sql4="SELECT * FROM discussion_board WHERE sender_id = '".$k."' AND receiver_id = '".$q."'";
@@ -75,7 +75,7 @@ while($row = mysqli_fetch_array($result)) {
   $findsender2 = $row['sender_id'];
 }
 
-$sql5 = "SELECT * FROM users WHERE id = '".$findsender2."'";
+$sql5 = "SELECT * FROM parents WHERE id = '".$findsender2."'";
 $senderfinder = mysqli_query($con,$sql5);
 
 while($row2 = mysqli_fetch_array($senderfinder)) {
@@ -87,15 +87,20 @@ $sql6="SELECT * FROM discussion_board WHERE sender_id = '".$k."' AND receiver_id
 $final = mysqli_query($con,$sql6);
 
 while($row = mysqli_fetch_array($final)) {
+    echo "<table id='from_parent'";
     echo "<tr>";
-    echo "<td class='sendername'>" . $senderfname2 . " " . $senderlname2 . "</td>";
-    echo "<td class='message'>" . $row['message'] . "</td>";
-    echo "<td class='timestamp'>" . $row['time_stamp'] . "</td>";
+    echo "<th class='sendername'>Sent by: " . $senderfname2 . " " . $senderlname2 . "</th>";
     echo "</tr>";
+    echo "<tr>";
+    echo "<td class='message'>" . $row['message'] . "</td>";
+    echo "</tr>";
+    echo "<tr>";
+    echo "<td class='timestamp'>On: " . $row['time_stamp'] . "</td>";
+    echo "</tr>";
+    echo "</table>";
 }
 
 
-echo "</table>";
 mysqli_close($con);
 ?>
 </body>

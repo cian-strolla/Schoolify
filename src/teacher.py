@@ -689,6 +689,7 @@ print("""
             }
         </script>
 
+
         <!--<div class="current-student-container container"></div>-->
 
         <div class="view-options container-fluid">
@@ -945,7 +946,7 @@ print("""
                             <h1 class="h2">Discussion Board</h1>
                         </div>
                         <div id="conversations">
-                            <table>
+                            <table id='discussion_beginning'>
                                 <thead class="thead-dark">
                                     <tr>
                                         <th class="active_conversations" scope="col">Active Conversations</th>
@@ -956,6 +957,20 @@ print("""
                                     %s
                                 </tbody>
                             </table>
+                            <div id="send_message">
+                                <p>Please choose a recipient: </p>
+                                <form class="parent_to_send_" id="parent_to_send_" action="send_message.py" method="post">
+                                  <input type="radio" id="parent1" name="parent" value="70">
+                                  <label for="parent1">Ben</label><br>
+                                  <input type="radio" id="parent2" name="parent" value="50">
+                                  <label for="parent2">Rachel</label><br>
+                                  <input type="radio" id="parent3" name="parent" value="60">
+                                  <label for="parent3">Nora</label><br><br>
+                                  <input type="submit" value="Send Message">
+                                </form>
+                                <textarea id="message_text_area" form="parent_to_send_" rows="3" cols="50" name="message_to_send" placeholder="Enter a message to send here..."></textarea>
+                                
+                            </div>
                             <div>
                                 <p id="current_discussion"></p>
                             </div>
