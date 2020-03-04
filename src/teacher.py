@@ -969,7 +969,7 @@ print("""
                                   <input type="submit" value="Send Message">
                                 </form>
                                 <textarea id="message_text_area" form="parent_to_send_" rows="3" cols="50" name="message_to_send" placeholder="Enter a message to send here..."></textarea>
-                                
+
                             </div>
                             <div>
                                 <p id="current_discussion"></p>
