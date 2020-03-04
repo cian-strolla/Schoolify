@@ -163,11 +163,11 @@ if http_cookie_header:
 
                         student_specific_attendance_table='''
                             <h2> %s's Attendance </h2>
-                          <table>
-                            <thead>
+                          <table class="table table-striped">
+                            <thead class="thead-dark">
                               <tr>
-                                <th>Date</th>
-                                <th>Attendance</th>
+                                <th scope="col">Date</th>
+                                <th scope="col">Attendance</th>
                               </tr>
                             </thead>
                             <tbody>''' % (child['first_name'])
@@ -758,7 +758,7 @@ print("""
                                </div>
                           </div>
                           <p>Welcome back %s</p>
-                          <h1>Class Attendance</h1>
+                          <h1>Today's Attendance</h1>
                           <table class="table table-hover">
                             <thead class="thead-dark">
                               <tr>
@@ -770,25 +770,16 @@ print("""
                             <tbody>
                               <tr>
                                 <th scope="row">1</th>
-                                <td>%s</td>
-                                <td>%s</td>
+                                <td>Peter Ahern</td>
+                                <td>Present</td>
                               </tr>
                               <tr>
                                 <th scope="row">2</th>
-                                <td>%s</td>
-                                <td>%s</td>
-                              </tr>
-                              <tr>
-                                <th scope="row">3</th>
-                                <td>%s</td>
-                                <td>%s</td>
+                                <td>Aoife Ahern</td>
+                                <td>Present</td>
                               </tr>
                              </tbody>
                             </table>
-
-                            <!-- TAKE ATTENDANCE TABLE -->
-                            %s
-
 
                     </div>
 
@@ -820,7 +811,7 @@ print("""
                             <h1 class="h2">Attendance for Your Children</h1>
                         </div>
                     %s
-                    
+
                     </div>
 
 
@@ -935,10 +926,7 @@ print("""
     """ % (points_chart, student_specific_points_graph_script,\
      no_student_JSAlert, student_id, student_firstname, student_lastname,\
     today, teacher_name,\
-     list(daily_attendance_dict.keys())[0], list(daily_attendance_dict.values())[0],\
-     list(daily_attendance_dict.keys())[1], list(daily_attendance_dict.values())[1],\
-     list(daily_attendance_dict.keys())[2], list(daily_attendance_dict.values())[2],\
-     attendance_table, personal_info, \
+      personal_info, \
       all_children_attendance_table, \
       class_points_table, student_specific_points, student_specific_points_graph, homework_table, student_id,\
        events_table, printer))
