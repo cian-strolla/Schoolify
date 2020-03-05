@@ -16,6 +16,7 @@ from html import escape
 no_student_JSAlert=''
 result = ''
 today=date.today()
+today_string = str(today)
 parent_id = ''
 
 # PERSONAL IFNO
