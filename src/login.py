@@ -51,14 +51,14 @@ if email != '':
     connection = db.connect('cs1.ucc.ie', 'rjf1', 'ahf1Aeho', '2021_rjf1')
     cursor = connection.cursor(db.cursors.DictCursor)
     search_result = cursor.execute("""SELECT * FROM users WHERE email = %s AND password = %s""" , (email, password))
-    fetched = cursor.fetchone()
-    name= fetched['first_name'] + ' ' + fetched['last_name']
-    id=fetched['id']
-    account_type = fetched['account_type']
-    current_class = str(fetched['class'])
 
     #user found and password match, issue cookie and redirect to homepage
     if search_result == 1:
+        fetched = cursor.fetchone()
+        name= fetched['first_name'] + ' ' + fetched['last_name']
+        id=fetched['id']
+        account_type = fetched['account_type']
+        current_class = str(fetched['class'])
         cookie = SimpleCookie()
         sid = sha256(repr(time()).encode()).hexdigest()
         cookie['sid'] = sid
