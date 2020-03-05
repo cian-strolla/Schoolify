@@ -88,10 +88,11 @@ if http_cookie_header:
                     teacher_name=session_store['name']
                     current_class = session_store['class']
                     parent_id = session_store['id']
-                    #current_class = int(current_class)
 
                     connection = db.connect('cs1.ucc.ie', 'rjf1', 'ahf1Aeho', '2021_rjf1')
                     # PERSONAL INFO
+
+                    # Fetching data from database tables
                     cursor = connection.cursor(db.cursors.DictCursor)
                     cursor.execute("""SELECT * FROM students where student_id in (SELECT student_id FROM student_parent WHERE parent_id=%s)"""% parent_id)
 
@@ -114,6 +115,7 @@ if http_cookie_header:
                             eircode = row3['eircode']
                         cursor3.close()
 
+                        # Creating table for students personal information
                         date_of_birth = str(row['date_of_birth'])
                         contact_number = str(row['phone_number'])
                         personal_info += "<tr>"
@@ -241,6 +243,7 @@ if http_cookie_header:
                     cursor.close()
 
                     # POINTS
+                    # Retrieving the total points of the parents children and creating a table
                     cursor = connection.cursor(db.cursors.DictCursor)
                     cursor.execute("""SELECT * FROM points_total WHERE student_id in (SELECT student_id from student_parent WHERE parent_id=%s)""" % (parent_id))
                     result = current_class
@@ -258,12 +261,14 @@ if http_cookie_header:
                         class_points_table += "<td>" + student_firstname + " " + student_lastname + "</td>"
                         class_points_table += "<td>" + total_points + "</td>"
                         class_points_table += "</tr>"
+                        # Adding the students total points to the bar chart
                         points_chart +="{ y: " + total_points +", label: \"" + student_firstname + " " + student_lastname + "\" },"
                     connection.commit()
                     cursor.close()
 
                     # STUDENT_SPECIFIC POINTS
 
+                    # Creating a table for each child showing their specific points and reasons
                     cursor = connection.cursor(db.cursors.DictCursor)
                     cursor.execute("""SELECT * FROM students where student_id in (SELECT student_id FROM student_parent WHERE parent_id=%s)"""% parent_id)
 
@@ -282,6 +287,7 @@ if http_cookie_header:
                                                         </tr>
                                                       </thead>
                                                       <tbody>"""
+                        # Creating a graph for each student showing their points history
                         student_specific_points_graph_script += """var chart""" + student_id + """ = new CanvasJS.Chart(\"chartContainer""" + student_id + """\", {
                                                                         animationEnabled: true,
                                                                         theme: "light2",
@@ -296,7 +302,7 @@ if http_cookie_header:
                                                                         		type: "line",
                                                                               	indexLabelFontSize: 16,
                                                                         		dataPoints: [{ y: 0, label: \" \", }, """
-                                #{ y: 0, label: \" \", },"""
+                        # Inserting data into individual students tables
                         cursor2 = connection.cursor(db.cursors.DictCursor)
                         cursor2.execute("""SELECT * FROM points_reasons WHERE student_id = %s ORDER BY reason_date""" % (student_id))
                         for row2 in cursor2.fetchall():
@@ -308,6 +314,7 @@ if http_cookie_header:
                             student_specific_points += "<td>" + points_date + "</td>"
                             student_specific_points += "<td>" + points_reason + "</td>"
                             student_specific_points += "</tr>"
+                            # Inserting data into script for points graphs
                             student_specific_points_graph_script += "{ y: " + points_string +", label: \"" + points_date + " \", },"
 
                         student_specific_points += """</tbody>
@@ -336,6 +343,7 @@ if http_cookie_header:
                             cursor2.close()
                     cursor.close()
 
+                    # Create events table
                     cursor = connection.cursor(db.cursors.DictCursor)
                     cursor.execute("""SELECT * FROM calendar WHERE class = %s ORDER BY event_date""" % (current_class))
 
@@ -434,6 +442,8 @@ if http_cookie_header:
                         if student_id != '':
 
                             # PERSONAL INFO
+
+                            # Creating personal info table for specified student
                             personal_info = ''
                             cursor = connection.cursor(db.cursors.DictCursor)
                             cursor.execute("""SELECT * FROM students
