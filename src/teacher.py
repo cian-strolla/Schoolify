@@ -70,6 +70,9 @@ student_specific_attendance_dict={'2020-02-05':'no student selected', '2020-02-0
 simple=''
 presence_dict=dict()
 
+# DISCUSSION
+printer = ''
+
 cookie = SimpleCookie()
 http_cookie_header = environ.get('HTTP_COOKIE')
 
@@ -93,6 +96,8 @@ if http_cookie_header:
                     cursor = connection.cursor(db.cursors.DictCursor)
                     cursor.execute("""SELECT * FROM students where class=%s"""% current_class)
 
+                    # Fetching student information from the database tables
+
                     for row in cursor.fetchall():
                         student_id = str(row['student_id'])
                         student_firstname = row['first_name']
@@ -111,6 +116,8 @@ if http_cookie_header:
                             address = row3['address']
                             eircode = row3['eircode']
                         cursor3.close()
+
+                        # Creating the student information table
 
                         date_of_birth = str(row['date_of_birth'])
                         contact_number = str(row['phone_number'])
@@ -173,6 +180,8 @@ if http_cookie_header:
                     cursor.close()
 
                     # POINTS
+
+                    # Fetching the total points for each student in the class
                     cursor = connection.cursor(db.cursors.DictCursor)
                     cursor.execute("""SELECT * FROM points_total WHERE class=%s""" % (current_class))
                     result = current_class
@@ -185,6 +194,7 @@ if http_cookie_header:
                             student_lastname = row2['last_name']
                         connection.commit()
                         cursor2.close()
+                        # Creating the total points table
                         total_points = str(row['points'])
                         class_points_table += "<tr>"
                         class_points_table += "<td>" + student_firstname + " " + student_lastname + "</td>"
@@ -356,9 +366,11 @@ if http_cookie_header:
                             cursor.execute("""SELECT * FROM students
                                             WHERE student_id = %s""" % (student_id))
                             fetched = cursor.fetchall()
+                            # Checking if valid student id has been entered
                             if len(fetched)==0:
                                 no_student_JSAlert='alert("Student Doesn\'t Exist. Search for a Valid Student ID.");'
                             else:
+                                # Creating information table for student who has been searched
                                 for row in fetched:
                                     student_id = str(row['student_id'])
                                     student_firstname = row['first_name']
@@ -419,6 +431,7 @@ if http_cookie_header:
 
 
                             # STUDENT_SPECIFIC POINTS
+                            # Creating a table for the points and reasons for the specified student
                             student_specific_points += """<div id="student-specific-points"class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
                                                             <h1 class="h2">""" + student_firstname + """\'s Points</h1>
                                                         </div>"""
@@ -447,6 +460,7 @@ if http_cookie_header:
                             student_specific_points += """</tbody>
                                                         </table>"""
 
+                            # Inserting an element for a graph for a specific students points
                             student_specific_points_graph += "<div id=\"chartContainer2\"></div>"
 
 
@@ -474,6 +488,7 @@ if http_cookie_header:
                             cursor.close()
 
                         # POINTS
+                        # Allowing the teacher to distribute points
                         if points_input != '':
                             cursor = connection.cursor(db.cursors.DictCursor)
                             cursor.execute("""INSERT INTO `points_reasons` (`student_id`, `reason_date`, `reason`, `points`, `class`) VALUES ('%s', '%s', '%s', '%s', '%s')""" % (points_id_input,today,points_reason_input,points_input,current_class))
@@ -483,13 +498,13 @@ if http_cookie_header:
                                 for row in cursor.fetchall():
                                     points_total = int(row['points'])
                                     points_total += int(points_input)
-                                    testing = "ngiejfivbf"
                                 cursor.execute("""UPDATE points_total SET points=%s WHERE student_id=%s""" % (points_total, points_id_input))
                                 connection.commit()
                             cursor.close()
                             print('Location: teacher.py#points')
 
                         # SCHEDULE
+                        # Allowing the teacher to create events
                         if event_date_input != '':
                             cursor = connection.cursor(db.cursors.DictCursor)
                             cursor.execute("""INSERT INTO `calendar` (`id`, `class`, `event_date`, `event_description`) VALUES (NULL, '%s', '%s', '%s');""" % (current_class, event_date_input, event_descrition_input))
@@ -497,11 +512,6 @@ if http_cookie_header:
                             cursor.close()
                             connection.close()
                             print('Location: teacher.py#schedule')
-
-                        # commenting this out prevents the website from being redirected to
-                        # teacher.py just after entering a student id
-
-                        # print('Location: teacher.py')
 
                         # HOMEWORK
                         if file_upload != '':
@@ -950,7 +960,6 @@ print("""
                                 %s
                             </tbody>
                             </table>
-                            %s
                         </div>
 
                     </div>
@@ -1009,4 +1018,4 @@ print("""
       list(student_specific_attendance_dict.keys())[0], list(student_specific_attendance_dict.values())[0],\
       list(student_specific_attendance_dict.keys())[1], list(student_specific_attendance_dict.values())[1],\
       list(student_specific_attendance_dict.keys())[2], list(student_specific_attendance_dict.values())[2],\
-      class_points_table, student_specific_points, student_specific_points_graph, homework_table, student_id, events_table, points_id_input, printer))
+      class_points_table, student_specific_points, student_specific_points_graph, homework_table, student_id, events_table, printer))
