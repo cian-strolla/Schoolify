@@ -196,6 +196,8 @@ if http_cookie_header:
                                                         </table>'''
 
                         all_children_attendance_table+=student_specific_attendance_table
+
+
                     cursor = connection.cursor(db.cursors.DictCursor)
                     cursor.execute("""SELECT * FROM students
                                             WHERE class = '1'""")
@@ -326,6 +328,50 @@ if http_cookie_header:
                                                                 chart""" + student_id + """.render();"""
 
                         student_specific_points_graph += "<div id=\"chartContainer" + student_id + "\" class=\"chartContainer\"></div>"
+                        # HOMEWORK
+                        teacher_email = ''
+                        cursor4 = connection.cursor(db.cursors.DictCursor)
+                        cursor4.execute("""SELECT email FROM teachers
+                                        WHERE class =
+                                        (SELECT class FROM students
+                                        WHERE student_id = '%s');""" % (student_id))
+                        for row in cursor4.fetchall():
+                            teacher_email = row['email']
+                        cursor4.close()
+                        homework_table += """
+                                            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+                                                    <h1 class="h2">%s's Tests</h1>
+                                            </div>
+                                            <table>
+    						                     <tr>
+    							                   <th>Week</th>
+    							                   <th>Submission</th>
+                                                   <th>Result</th>
+                                                   <th>Comments</th>
+    						                     </tr>""" % (student_firstname)
+                        cursor3 = connection.cursor(db.cursors.DictCursor)
+                            # currently using a workaround where instead of sending the eamil of teacher_name
+                            # from login.py I'm using the teacher_name@gamil.com
+                        cursor3.execute("""SELECT * FROM homework
+                                        WHERE student_id = '%s'
+                                        AND teacher_email = '%s'""" % (student_id, teacher_email))
+
+                        week =1
+                            # append all file submissions even if null
+                        for row in cursor3.fetchall():
+                            # Currently all files are in correct order so no need to use file_order atribute yet
+                            # as this simplifies matters a lot
+                            # Changed the file structure for where homework files will be stored to make it easier
+                            homework_table += """<tr>
+                                                    <td>Week %s</td>
+                                                    <td><a href="tests/%s/%s" download>Solution</a></td>
+                                                    <td> %s </td>
+                                                    <td> %s </td>
+                                                </tr>""" % (str(week),student_id, row['filename'], str(row['result']), row['comments'])
+                            week+=1
+                        homework_table += """</table>
+                                            <p></p>"""
+                        cursor3.close()
 
                     cursor.close()
 
@@ -398,9 +444,6 @@ if http_cookie_header:
 
                 except db.Error:
                     result = '<p>Sorry! We are experiencing problems at the moment. Please call back later.</p>'
-
-                teacher_email_name = teacher_name.replace(" ","")
-                teacher_email_name = teacher_email_name.lower()
 
                 if len(form_data) != 0:
 
@@ -509,52 +552,6 @@ if http_cookie_header:
 
 
                             cursor.close()
-
-
-                            # HOMEWORK
-                            cursor = connection.cursor(db.cursors.DictCursor)
-                                # currently using a workaround where instead of sending the eamil of teacher_name
-                                # from login.py I'm using the teacher_name@gamil.com
-                            cursor.execute("""SELECT * FROM homework
-                                            WHERE student_id = '%s'
-                                            AND teacher_email = '%s@gmail.com'""" % (student_id, teacher_email_name))
-
-                            week =1
-                                # append all file submissions even if null
-                            for row in cursor.fetchall():
-                                # Currently all files are in correct order so no need to use file_order atribute yet
-                                # as this simplifies matters a lot
-                                # Changed the file structure for where homework files will be stored to make it easier
-                                homework_table += """<tr>
-                                                        <td>Week %s</td>
-                                                        <td><a href="tests/%s/%s" download>Solution</a></td>
-                                                        <td> %s </td>
-                                                        <td> %s </td>
-                                                    </tr>""" % (str(week),student_id, row['filename'], str(row['result']), row['comments'])
-                                week+=1
-                            cursor.close()
-
-                        # HOMEWORK
-                        if file_upload != '':
-                            try:
-                                result_mark = escape(form_data.getfirst('result'))
-                            except:
-                                result_mark = ''
-                            try:
-                                comment = escape(form_data.getfirst('comments'))
-                            except:
-                                comment = ''
-                            try:
-                                student_hw_id = escape(form_data.getfirst('student-id'))
-                            except:
-                                student_hw_id = student_id
-                            cursor = connection.cursor(db.cursors.DictCursor)
-                            cursor.execute("""INSERT INTO homework (homework_id, teacher_email, student_id, filename, file_order, result, comments)
-                                            VALUES (4, %s, %s, %s, 4, %s, %s);""" %(teacher_email_name, student_hw_id, file_upload, result_mark, comment))
-                            connection.commit()
-                            cursor.close()
-                            connection.close()
-                            print('Location: parent.py#tests')
 
                         connection.close()
 
@@ -861,36 +858,8 @@ print("""
     					<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
                             <h1 class="h2">Tests</h1>
                         </div>
-    					<table>
-    						<tr>
-    							<th>Week</th>
-    							<th>Submission</th>
-                                <th>Result</th>
-                                <th>Comments</th>
-    						</tr>
     						<!-- creating these table rows dynamically now so that more rows can be added when needed-->
-                            %s
-    					</table>
-                        <p></p>
-                        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-                            <h1 class="h2">Upload Test</h1>
-                        </div>
-                        <table>
-                            <tr>
-                                <th>Submission</th>
-                                <th>Result</th>
-                                <th>Comment</th>
-                                <th>Student</th>
-                                <th>Submit</th>
-                            </tr>
-                            <form enctype="multipart/form-data" action="parent.py" method="post">
-								<td>File: <input type="file" name="filename" /></td>
-								<td><input type="text" id="result" class="result" name="result"/></td>
-								<td><input type="text" id="comments" name="comments"/></td>
-								<td><input type="text" id="student_id" class="student-id" name="student-id" value="%s"/></td>
-								<td><input type="submit" value="upload" /></p></td>
-							</form>
-                        </table>
+                        %s
                     </div>
 
                     <div id="schedule">
@@ -950,5 +919,5 @@ print("""
     today, teacher_name,\
       personal_info, \
       all_children_attendance_table, \
-      class_points_table, student_specific_points, student_specific_points_graph, homework_table, student_id,\
+      class_points_table, student_specific_points, student_specific_points_graph, homework_table,\
        events_table, printer))
