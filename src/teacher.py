@@ -17,6 +17,7 @@ testing = ''
 no_student_JSAlert=''
 result = ''
 today=date.today()
+today_string = str(today)
 # PERSONAL IFNO
 student_firstname = ''
 student_lastname = ''
@@ -120,7 +121,7 @@ if http_cookie_header:
                         personal_info += "<td>" + address + "</td>"
                         personal_info += "<td>" + eircode + "</td>"
                         personal_info += "<td>" + contact_number + "</td>"
-                        events_table += "</tr>"
+                        personal_info += "</tr>"
                     connection.commit()
                     cursor.close()
 
@@ -195,6 +196,18 @@ if http_cookie_header:
 
                     # SCHEDULE
 
+                    # Delete events that have already happened
+                    cursor = connection.cursor(db.cursors.DictCursor)
+                    cursor.execute("""SELECT * FROM calendar WHERE class = %s ORDER BY event_date""" % (current_class))
+                    for row in cursor.fetchall():
+                        event_date = str(row['event_date'])
+                        if event_date < today_string:
+                            cursor2 = connection.cursor(db.cursors.DictCursor)
+                            cursor2.execute("""DELETE FROM calendar WHERE event_date='%s'""" % (event_date))
+                            cursor2.close()
+                    cursor.close()
+
+                    # Create event table
                     cursor = connection.cursor(db.cursors.DictCursor)
                     cursor.execute("""SELECT * FROM calendar WHERE class = %s ORDER BY event_date""" % (current_class))
 

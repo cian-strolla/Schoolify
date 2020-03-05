@@ -324,6 +324,17 @@ if http_cookie_header:
 
                     # SCHEDULE
 
+                    # Delete events that have already happened
+                    cursor = connection.cursor(db.cursors.DictCursor)
+                    cursor.execute("""SELECT * FROM calendar WHERE class = %s ORDER BY event_date""" % (current_class))
+                    for row in cursor.fetchall():
+                        event_date = str(row['event_date'])
+                        if event_date < today_string:
+                            cursor2 = connection.cursor(db.cursors.DictCursor)
+                            cursor2.execute("""DELETE FROM calendar WHERE event_date='%s'""" % (event_date))
+                            cursor2.close()
+                    cursor.close()
+
                     cursor = connection.cursor(db.cursors.DictCursor)
                     cursor.execute("""SELECT * FROM calendar WHERE class = %s ORDER BY event_date""" % (current_class))
 
